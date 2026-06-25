@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
     escapeHtml,
@@ -16,7 +17,7 @@ import {
     getWarrantyStatusClass,
 } from '@/lib/helpers';
 
-export default function Home() {
+function ThongTinContent() {
     const searchParams = useSearchParams();
     const idURI = searchParams.get('id') || '';
 
@@ -408,5 +409,14 @@ export default function Home() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// Component chính export với Suspense
+export default function Home() {
+    return (
+        <Suspense fallback={<div className="page-shell"><div className="content"><div className="status-box">Đang tải...</div></div></div>}>
+            <ThongTinContent />
+        </Suspense>
     );
 }
