@@ -4,11 +4,9 @@ export async function GET(req) {
         const type = searchParams.get('type');
 
         const spreadsheetId =
-            process.env.SPREADSHEET_ID ||
-            '1BrEXyW5M9Sild-C0qFHmGxYaXq8Jfown0LiykKMTuhA';
+            process.env.SPREADSHEET_ID;
         const apiKey =
-            process.env.GOOGLE_SHEETS_API_KEY ||
-            'AIzaSyA9g2qFUolpsu3_HVHOebdZb0NXnQgXlFM';
+            process.env.GOOGLE_SHEETS_API_KEY;
 
         if (!spreadsheetId || !apiKey) {
             return new Response(
