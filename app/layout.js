@@ -1,5 +1,6 @@
+// app/layout.js
 import './globals.css';
-import SlideBar from '@/components/SlideBar';
+import SlideBar from '@/components/slidebar/page';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -13,8 +14,8 @@ export default function RootLayout({ children }) {
     return (
         <html lang="vi">
             <body className={inter.className}>
-                <SlideBar />
                 <main>{children}</main>
+                <SlideBar />
             </body>
         </html>
     );

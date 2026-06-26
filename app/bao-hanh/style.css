@@ -1,0 +1,237 @@
+/* ===== Trang Bảo hành ===== */
+
+/* Header */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.header-row h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-right {
+    font-size: 14px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1d4ed8;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.15);
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-refresh:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+}
+
+/* Error */
+.error-box {
+    padding: 10px 16px;
+    background: #fee2e2;
+    color: #b91c1c;
+    border-radius: 8px;
+    margin-top: 12px;
+}
+
+/* Filter */
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--bg-2);
+    border-radius: 16px;
+    border: 1px solid var(--line);
+}
+
+.filter-group {
+    flex: 1 1 180px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #334155;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.btn-clear-filters {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #dc2626;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.15);
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-clear-filters:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(239, 68, 68, 0.25);
+}
+
+/* Table wrapper – đã có trong globals, chỉ thêm margin nếu cần */
+.table-wrap {
+    margin-top: 16px;
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f1f5f9;
+}
+
+.pagination-page {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Sync info */
+.sync-info {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: right;
+}
+
+/* Modal (ghi đè hoặc bổ sung từ globals nếu cần) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-container {
+    background: white;
+    border-radius: 20px;
+    max-width: 1100px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    position: relative;
+}
+
+/* Responsive cho modal */
+@media (max-width: 640px) {
+    .modal-overlay {
+        padding: 10px;
+    }
+
+    .modal-container {
+        padding: 12px;
+    }
+}
+
+/* Một số điều chỉnh cho nút Xem trong bảng (đã có .guide-link, nhưng có thể thêm size) */
+.btn-view {
+    font-size: 12px;
+    padding: 4px 12px;
+    cursor: pointer;
+}

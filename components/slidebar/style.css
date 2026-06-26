@@ -1,0 +1,420 @@
+/* ========== NÚT HAMBURGER ========== */
+.hamburger-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    border: none;
+    padding: 10px;
+    /* Chỉnh lại padding cho cân đối hình vuông/tròn nhẹ */
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.hamburger-btn:hover {
+    background: rgba(15, 23, 42, 0.96);
+    transform: scale(1.03);
+}
+
+.hamburger-line {
+    width: 24px;
+    height: 2.5px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+/* ========== OVERLAY ========== */
+.slide-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ========== SLIDE BAR ========== */
+.slide-bar {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 320px;
+    height: 100vh;
+    background: linear-gradient(180deg, #0b1120 0%, #1e293b 100%);
+    color: #e2e8f0;
+    z-index: 1000;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.6);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.slide-bar-open {
+    left: 0;
+}
+
+/* ========== HEADER ========== */
+.slide-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.slide-bar-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 26px;
+    cursor: pointer;
+    padding: 0 6px;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.close-btn:hover {
+    color: #f1f5f9;
+    transform: rotate(90deg);
+}
+
+/* ========== USER PROFILE ========== */
+.user-profile {
+    padding: 22px 28px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 24px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 17px;
+    color: #f1f5f9;
+    line-height: 1.3;
+}
+
+.user-role {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 2px;
+    line-height: 1.3;
+}
+
+/* ========== MENU LIST ========== */
+.slide-nav-list {
+    list-style: none;
+    padding: 12px 0 8px;
+    margin: 0;
+    flex: 1;
+}
+
+.slide-nav-list li {
+    padding: 0;
+}
+
+/* Cụm đầu tiên không cần khoảng cách trên quá lớn */
+.slide-nav-list>li:first-child.nav-group-title {
+    padding-top: 16px;
+}
+
+.nav-group-title {
+    /* Giữ nguyên padding gốc để không bị lệch bố cục chung */
+    padding: 32px 28px 8px 28px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 1.4px;
+    font-weight: 700;
+
+    /* Dùng dịch chuyển (transform) hoặc margin để đẩy chữ thụt lề cực kỳ an toàn */
+    transform: translateX(20px);
+}
+
+.slide-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 28px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s;
+    border-radius: 0;
+    position: relative;
+    font-size: 15px;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+}
+
+.slide-nav-link:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #f1f5f9;
+}
+
+.slide-nav-link.active {
+    background: rgba(59, 130, 246, 0.12);
+    color: #60a5fa;
+    font-weight: 600;
+    border-left-color: #60a5fa;
+}
+
+.nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    /* Định kích thước vùng chứa icon cố định */
+    flex-shrink: 0;
+    opacity: 0.8;
+    /* Cho icon nhẹ đi một chút, khi hover/active sẽ rõ lên */
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.slide-nav-link:hover .nav-icon,
+.slide-nav-link.active .nav-icon {
+    opacity: 1;
+    /* Sáng rõ lên khi Active hoặc Hover */
+}
+
+.badge {
+    margin-left: auto;
+    background: #ef4444;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 12px;
+    border-radius: 999px;
+    line-height: 1.6;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+/* ========== STATUS ========== */
+.status-item {
+    display: flex;
+    flex-direction: column;
+    /* Xếp dọc để thời gian rớt xuống dòng dưới */
+    gap: 6px;
+    padding: 12px 28px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.01);
+    /* Highlight nền rất nhẹ */
+}
+
+.status-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.online {
+    background: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.status-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #22c55e;
+}
+
+.status-time {
+    font-size: 12px;
+    color: #64748b;
+    padding-left: 22px;
+    /* Thụt lề cho thẳng hàng với chữ "Đã đăng nhập" */
+}
+
+.logout-btn {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    padding: 12px 28px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    border-left-color: #ef4444;
+}
+
+/* ========== FOOTER ========== */
+.slide-bar-footer {
+    padding: 18px 28px 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 12px;
+    color: #64748b;
+    text-align: center;
+    margin-top: auto;
+}
+
+.app-version {
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.app-copyright {
+    margin-top: 4px;
+    color: #475569;
+}
+
+/* Custom Scrollbar cho SlideBar */
+.slide-bar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.slide-bar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.slide-bar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.slide-bar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 480px) {
+    .slide-bar {
+        width: 280px;
+        left: -280px;
+    }
+
+    .slide-bar-open {
+        left: 0;
+    }
+
+    .hamburger-btn {
+        top: 12px;
+        left: 12px;
+        padding: 10px 12px;
+        gap: 4px;
+    }
+
+    .hamburger-line {
+        width: 20px;
+        height: 2px;
+    }
+
+    .slide-bar-header {
+        padding: 18px 20px 16px;
+    }
+
+    .slide-bar-header h2 {
+        font-size: 20px;
+    }
+
+    .user-profile {
+        padding: 16px 20px;
+    }
+
+    .avatar-circle {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+
+    .user-name {
+        font-size: 15px;
+    }
+
+    .user-role {
+        font-size: 12px;
+    }
+
+    .slide-nav-link {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .status-item {
+        padding: 8px 20px;
+        font-size: 13px;
+    }
+
+    .logout-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .slide-bar-footer {
+        padding: 14px 20px 18px;
+        font-size: 11px;
+    }
+
+    .nav-group-title {
+        padding: 10px 20px 4px 28px;
+        font-size: 10px;
+    }
+}
