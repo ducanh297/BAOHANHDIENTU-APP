@@ -62,7 +62,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="login-header">
-                    <h1>HỆ THỐNG THÔNG TIN BẢO HÀNH ĐIỆN TỬ</h1>
+                    <h1>HỆ THỐNG THÔNG TIN<br></br>BẢO HÀNH ĐIỆN TỬ</h1>
                 </div>
 
                 {error && (
@@ -81,7 +81,7 @@ export default function LoginPage() {
                                 type="text"
                                 value={tenDangNhap}
                                 onChange={(e) => setTenDangNhap(e.target.value)}
-                                placeholder="Nhập tài khoản của bạn"
+                                placeholder="Điền thông tin"
                                 required
                             />
                         </div>
@@ -115,7 +115,7 @@ export default function LoginPage() {
                             <span className="loader-text">Đang xử lý...</span>
                         ) : (
                             <>
-                                Đăng nhập hệ thống <LogIn size={18} />
+                                Đăng nhập <LogIn size={18} />
                             </>
                         )}
                     </button>
