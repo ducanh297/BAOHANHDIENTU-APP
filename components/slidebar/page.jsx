@@ -7,10 +7,9 @@ import { filterSheetData, normalizeDate, addMonths, daysBetween } from '@/lib/he
 // Import các icon chuyên nghiệp từ lucide-react
 import {
     LayoutDashboard,
-    Wrench,
-    Search,
     BookOpen,
     PhoneCall,
+    ShieldCheck,
     User,
     KeyRound,
     LogOut,
@@ -64,7 +63,7 @@ export default function SlideBar() {
         }
     };
 
-    if (pathname === '/login' || pathname === '/thong-tin') return null;
+    if (pathname === '/login') return null;
 
     const toggleSlideBar = () => setIsOpen(!isOpen);
 
@@ -87,8 +86,7 @@ export default function SlideBar() {
     // Định nghĩa Menu với Component Icon thay vì Emoji
     const mainMenus = [
         { path: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/bao-hanh', label: 'Bảo hành', icon: <Wrench size={18} /> },
-        { path: '/thong-tin', label: 'Tra cứu', icon: <Search size={18} /> },
+        { path: '/bao-hanh', label: 'Thông tin bảo hành', icon: <ShieldCheck size={18} /> },
     ];
 
     const supportMenus = [
@@ -127,7 +125,8 @@ export default function SlideBar() {
                         </div>
                         <div className="user-info">
                             <div className="user-name">{user.name}</div>
-                            <div className="user-role">{user.chucDanh} • {user.phongBan}</div>
+                            <div className="user-role">Chức danh: {user.chucDanh}</div>
+                            <div className="user-role">Phòng ban: {user.phongBan}</div>
                         </div>
                     </div>
                 )}

@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatDateDisplay, escapeHtml, normalizeDate, filterSheetData, parseDetailRow } from '@/lib/helpers';
-import ChiTietDonHang from '@/components/ChiTietDonHang';// Import bộ icon đồng bộ từ lucide-react
+import ChiTietDonHang from '@/components/chitietdonhang/page';// Import bộ icon đồng bộ từ lucide-react
 import {
     ShieldCheck,
     RefreshCw,

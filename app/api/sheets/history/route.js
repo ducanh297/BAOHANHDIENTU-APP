@@ -1,8 +1,8 @@
 import { getSheetData, appendSheetRow, updateSheetRow, deleteSheetRow } from '@/lib/googleSheets';
 import { randomBytes } from 'crypto';
 
-const SPREADSHEET_ID = process.env.SPREADSHEET_ID || 'your-sheet-id';
-const HISTORY_RANGE = 'lich_su_bao_hanh!A:F';
+const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
+const HISTORY_RANGE = 'lich_su_bao_hanh!A:H';
 
 // GET: lấy tất cả lịch sử
 export async function GET() {
@@ -30,6 +30,8 @@ export async function POST(request) {
             body.noi_dung_bao_hanh,
             body.nguoi_thuc_hien,
             body.ket_qua || '',
+            body.trang_thai || '',
+            body.ngay_tiep_nhan || '',
             body.ngay_bao_hanh,
         ];
 
@@ -60,6 +62,8 @@ export async function PUT(request) {
             updateData.noi_dung_bao_hanh,
             updateData.nguoi_thuc_hien,
             updateData.ket_qua || '',
+            updateData.trang_thai || 'Đã tiếp nhận thông tin',
+            updateData.ngay_tiep_nhan || '',
             updateData.ngay_bao_hanh,
         ];
 

@@ -16,8 +16,8 @@ import {
     parseHistoryRow,
     formatDateForSheet,
 } from '@/lib/helpers';
+import './style.css';
 
-// Helper chuyển date sang YYYY-MM-DD cho input type="date"
 const formatDateInput = (dateStr) => {
     if (!dateStr) return '';
     const date = normalizeDate(dateStr);
@@ -40,15 +40,13 @@ export default function ChiTietDonHang({
     const [warrantyMain, setWarrantyMain] = useState(mainData || null);
     const [warrantyItems, setWarrantyItems] = useState(detailItems || []);
     const [warrantyRules, setWarrantyRules] = useState([]);
-    const [expanded, setExpanded] = useState({}); // bảo hành
-    const [expandedHistory, setExpandedHistory] = useState({}); // lịch sử
+    const [expanded, setExpanded] = useState({});
+    const [expandedHistory, setExpandedHistory] = useState({});
 
-    // Lịch sử bảo hành state
     const [historyData, setHistoryData] = useState([]);
     const [historyLoading, setHistoryLoading] = useState(false);
 
-    // Form state cho thêm/sửa lịch sử
-    const [showForm, setShowForm] = useState(false);
+    const [showFormPopup, setShowFormPopup] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
         noi_dung_bao_hanh: '',
@@ -82,7 +80,7 @@ export default function ChiTietDonHang({
         }
     }, [ruleRows]);
 
-    // Fallback fetch (nếu thiếu dữ liệu)
+    // Fallback fetch
     useEffect(() => {
         if (mainData && detailItems) {
             setLoading(false);
@@ -153,7 +151,7 @@ export default function ChiTietDonHang({
         fetchFallback();
     }, [maDonHang, mainData, detailItems]);
 
-    // Helper functions (giữ nguyên)
+    // Helper functions
     const getApplicableRule = (maSanPham, ngayBanGiao) => {
         const productCode = String(maSanPham || '').trim();
         if (!productCode || !warrantyRules.length) return null;
@@ -257,7 +255,7 @@ export default function ChiTietDonHang({
     `;
     };
 
-    // ---- CRUD Lịch sử bảo hành ----
+    // ---- CRUD ----
     const fetchHistoryData = async (idRef) => {
         if (!idRef) return;
         try {
@@ -268,7 +266,6 @@ export default function ChiTietDonHang({
                 const rows = data.values || [];
                 const filtered = filterSheetData(rows);
                 const parsed = filtered.map(parseHistoryRow);
-                // Lọc theo idRef
                 const filteredById = parsed.filter(h => h.idRef === idRef);
                 setHistoryData(filteredById);
             }
@@ -282,7 +279,6 @@ export default function ChiTietDonHang({
     const toggleHistory = (id, idRef) => {
         const isOpen = expandedHistory[id];
         if (!isOpen) {
-            // Mở -> fetch dữ liệu cho idRef này
             setCurrentIdRef(idRef);
             fetchHistoryData(idRef);
         }
@@ -290,31 +286,25 @@ export default function ChiTietDonHang({
             ...prev,
             [id]: !prev[id],
         }));
-        // Reset form nếu đóng
         if (isOpen) {
-            setShowForm(false);
+            setShowFormPopup(false);
             setEditingId(null);
-            setFormData({
-                noi_dung_bao_hanh: '',
-                nguoi_thuc_hien: '',
-                ket_qua: '',
-                ngay_bao_hanh: '',
-            });
         }
     };
 
     const handleAddNew = (idRef) => {
         setCurrentIdRef(idRef);
         setEditingId(null);
+        const today = new Date().toISOString().split('T')[0];
         setFormData({
             noi_dung_bao_hanh: '',
             nguoi_thuc_hien: '',
             ket_qua: '',
             trang_thai: 'Đã tiếp nhận thông tin',
-            ngay_tiep_nhan: '',
+            ngay_tiep_nhan: today,
             ngay_bao_hanh: '',
         });
-        setShowForm(true);
+        setShowFormPopup(true);
     };
 
     const handleEdit = (item) => {
@@ -327,7 +317,7 @@ export default function ChiTietDonHang({
             ngay_tiep_nhan: formatDateInput(item.ngayTiepNhan),
             ngay_bao_hanh: formatDateInput(item.ngayBaoHanh),
         });
-        setShowForm(true);
+        setShowFormPopup(true);
     };
 
     const handleDelete = async (id) => {
@@ -335,7 +325,6 @@ export default function ChiTietDonHang({
         try {
             const res = await fetch(`/api/sheets/history?id=${id}`, { method: 'DELETE' });
             if (res.ok) {
-                // Refresh lại danh sách
                 if (currentIdRef) fetchHistoryData(currentIdRef);
             } else {
                 alert('Xóa thất bại');
@@ -371,15 +360,8 @@ export default function ChiTietDonHang({
 
             const res = await fetch(url, options);
             if (res.ok) {
-                setShowForm(false);
+                setShowFormPopup(false);
                 setEditingId(null);
-                setFormData({
-                    noi_dung_bao_hanh: '',
-                    nguoi_thuc_hien: '',
-                    ket_qua: '',
-                    ngay_bao_hanh: '',
-                });
-                // Refresh lại danh sách
                 if (currentIdRef) fetchHistoryData(currentIdRef);
             } else {
                 const err = await res.json();
@@ -395,7 +377,6 @@ export default function ChiTietDonHang({
     };
 
     const getHistoryForItem = (itemId) => {
-        // Khi đang mở history, historyData đã được lọc theo idRef
         return historyData.filter(h => h.idRef === itemId);
     };
 
@@ -531,80 +512,6 @@ export default function ChiTietDonHang({
                                                                 <div className="status-box">Đang tải...</div>
                                                             ) : (
                                                                 <>
-                                                                    {/* Form thêm/sửa */}
-                                                                    {showForm && (
-                                                                        <form onSubmit={handleSubmit} className="history-form">
-                                                                            <div className="form-field">
-                                                                                <label>Nội dung bảo hành</label>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    name="noi_dung_bao_hanh"
-                                                                                    value={formData.noi_dung_bao_hanh}
-                                                                                    onChange={handleChange}
-                                                                                    required
-                                                                                />
-                                                                            </div>
-                                                                            <div className="form-field">
-                                                                                <label>Người thực hiện</label>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    name="nguoi_thuc_hien"
-                                                                                    value={formData.nguoi_thuc_hien}
-                                                                                    onChange={handleChange}
-                                                                                    required
-                                                                                />
-                                                                            </div>
-                                                                            <div className="form-field">
-                                                                                <label>Kết quả</label>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    name="ket_qua"
-                                                                                    value={formData.ket_qua}
-                                                                                    onChange={handleChange}
-                                                                                />
-                                                                            </div>
-                                                                            <div className="form-field">
-                                                                                <label>Trạng thái</label>
-                                                                                <select
-                                                                                    name="trang_thai"
-                                                                                    value={formData.trang_thai}
-                                                                                    onChange={handleChange}
-                                                                                    required
-                                                                                >
-                                                                                    <option value="Đã tiếp nhận thông tin">Đã tiếp nhận thông tin</option>
-                                                                                    <option value="Chưa thực hiện">Chưa thực hiện</option>
-                                                                                    <option value="Đã thực hiện">Đã thực hiện</option>
-                                                                                </select>
-                                                                            </div>
-                                                                            <div className="form-field">
-                                                                                <label>Ngày tiếp nhận</label>
-                                                                                <input
-                                                                                    type="date"
-                                                                                    name="ngay_tiep_nhan"
-                                                                                    value={formData.ngay_tiep_nhan}
-                                                                                    onChange={handleChange}
-                                                                                />
-                                                                            </div>
-                                                                            <div className="form-field">
-                                                                                <label>Ngày bảo hành</label>
-                                                                                <input
-                                                                                    type="date"
-                                                                                    name="ngay_bao_hanh"
-                                                                                    value={formData.ngay_bao_hanh}
-                                                                                    onChange={handleChange}
-                                                                                    required
-                                                                                />
-                                                                            </div>
-                                                                            <div className="form-actions">
-                                                                                <button type="submit">{editingId ? 'Cập nhật' : 'Thêm'}</button>
-                                                                                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }}>
-                                                                                    Hủy
-                                                                                </button>
-                                                                            </div>
-                                                                        </form>
-                                                                    )}
-
-                                                                    {/* Bảng lịch sử */}
                                                                     <table className="history-table">
                                                                         <thead>
                                                                             <tr>
@@ -657,224 +564,93 @@ export default function ChiTietDonHang({
                 </div>
             </div>
 
-            <style jsx>{`
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-          border-bottom: 1px solid var(--line);
-          padding-bottom: 12px;
-        }
-        .modal-header h3 {
-          margin: 0;
-          font-size: 20px;
-          font-weight: 800;
-          color: var(--accent);
-        }
-        .modal-close {
-          background: none;
-          border: none;
-          font-size: 28px;
-          cursor: pointer;
-          color: var(--muted);
-          transition: color 0.2s;
-          padding: 0 8px;
-        }
-        .modal-close:hover {
-          color: var(--text);
-        }
-        .modal-body {
-          padding: 0;
-        }
-        .modal-content {
-          max-height: 70vh;
-          overflow-y: auto;
-        }
-        .history-panel {
-          border-top: 1px solid #e1ebf8;
-          background: linear-gradient(180deg, #f8fbff, #f2f7ff);
-          padding: 16px 18px 18px;
-        }
-        .history-panel-head {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 14px;
-          font-weight: 900;
-          color: var(--accent);
-          text-transform: uppercase;
-          letter-spacing: 0.35px;
-          margin-bottom: 12px;
-          padding: 10px 12px;
-          border: 1px solid #dce7f5;
-          border-radius: 14px;
-          background: linear-gradient(180deg, #f5f9ff 0%, #eef5ff 100%);
-        }
-        .history-add-btn {
-          background: var(--accent);
-          color: #fff;
-          border: none;
-          padding: 4px 12px;
-          border-radius: 999px;
-          font-weight: 700;
-          font-size: 12px;
-          cursor: pointer;
-        }
-        .history-add-btn:hover {
-          opacity: 0.9;
-        }
-        .history-form {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-bottom: 12px;
-          padding: 12px;
-          background: #fff;
-          border-radius: 12px;
-          border: 1px solid #dce7f5;
-        }
-        .history-form input {
-          flex: 1 1 150px;
-          padding: 6px 10px;
-          border: 1px solid #dce7f5;
-          border-radius: 6px;
-          font-size: 13px;
-        }
-        .history-form button {
-          padding: 6px 14px;
-          border: none;
-          border-radius: 6px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-        .history-form button[type="submit"] {
-          background: var(--accent);
-          color: #fff;
-        }
-        .history-form button[type="button"] {
-          background: #e5e7eb;
-        }
-        .history-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 12px;
-          background: #fff;
-          border: 1px solid #dce7f5;
-          border-radius: 14px;
-          overflow: hidden;
-          box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
-        }
-        .history-table thead th {
-          background: #edf4ff;
-          color: var(--accent);
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-          font-size: 11px;
-          font-weight: 900;
-          padding: 9px 10px;
-          border-bottom: 1px solid #dbe7f7;
-          text-align: left;
-        }
-        .history-table tbody td {
-          padding: 10px 10px;
-          border-bottom: 1px solid #edf2f8;
-          vertical-align: middle;
-          background: transparent;
-        }
-        .history-table tbody tr:last-child td {
-          border-bottom: none;
-        }
-        .history-edit-btn,
-        .history-delete-btn {
-          padding: 2px 10px;
-          border: none;
-          border-radius: 999px;
-          font-size: 11px;
-          font-weight: 600;
-          cursor: pointer;
-          margin-right: 4px;
-        }
-        .history-edit-btn {
-          background: #e0f2fe;
-          color: #0369a1;
-        }
-        .history-delete-btn {
-          background: #fee2e2;
-          color: #b91c1c;
-        }
-          .history-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 16px;
-    background: #f8fafc;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 16px;
-}
-
-.form-field {
-    flex: 1 1 180px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.form-field label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.form-field input,
-.form-field select {
-    padding: 8px 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 13px;
-    background: white;
-}
-
-.form-actions {
-    flex: 1 1 100%;
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    margin-top: 8px;
-}
-
-.form-actions button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.form-actions button[type="submit"] {
-    background: #2563eb;
-    color: white;
-}
-
-.form-actions button[type="button"] {
-    background: #e2e8f0;
-    color: #1e293b;
-}
-        @media (max-width: 640px) {
-          .modal-header h3 {
-            font-size: 16px;
-          }
-          .modal-close {
-            font-size: 24px;
-          }
-          .history-form input {
-            flex: 1 1 100%;
-          }
-        }
-      `}</style>
+            {/* Popup Form */}
+            {showFormPopup && (
+                <div className="popup-overlay" onClick={() => { setShowFormPopup(false); setEditingId(null); }}>
+                    <div className="popup-container" onClick={e => e.stopPropagation()}>
+                        <div className="popup-header">
+                            <h4>{editingId ? '✏️ Sửa lịch sử bảo hành' : '➕ Thêm lịch sử bảo hành'}</h4>
+                            <button className="popup-close" onClick={() => { setShowFormPopup(false); setEditingId(null); }}>✕</button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="popup-form">
+                            <div className="popup-form-row">
+                                <div className="popup-form-group">
+                                    <label>Nội dung bảo hành <span className="required">*</span></label>
+                                    <textarea
+                                        name="noi_dung_bao_hanh"
+                                        value={formData.noi_dung_bao_hanh}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Nhập nội dung chi tiết..."
+                                        rows={3}
+                                    />
+                                </div>
+                                <div className="popup-form-group">
+                                    <label>Người thực hiện <span className="required">*</span></label>
+                                    <input
+                                        type="text"
+                                        name="nguoi_thuc_hien"
+                                        value={formData.nguoi_thuc_hien}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Nhập tên người thực hiện"
+                                    />
+                                </div>
+                            </div>
+                            <div className="popup-form-row">
+                                <div className="popup-form-group">
+                                    <label>Kết quả</label>
+                                    <textarea
+                                        name="ket_qua"
+                                        value={formData.ket_qua}
+                                        onChange={handleChange}
+                                        placeholder="Nhập kết quả (nếu có)..."
+                                        rows={3}
+                                    />
+                                </div>
+                                <div className="popup-form-group">
+                                    <label>Trạng thái <span className="required">*</span></label>
+                                    <select
+                                        name="trang_thai"
+                                        value={formData.trang_thai}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="Đã tiếp nhận thông tin">✅ Đã tiếp nhận thông tin</option>
+                                        <option value="Chưa thực hiện">⏳ Chưa thực hiện</option>
+                                        <option value="Đã thực hiện">✔️ Đã thực hiện</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="popup-form-row">
+                                <div className="popup-form-group">
+                                    <label>Ngày tiếp nhận</label>
+                                    <input
+                                        type="date"
+                                        name="ngay_tiep_nhan"
+                                        value={formData.ngay_tiep_nhan}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                                <div className="popup-form-group">
+                                    <label>Ngày bảo hành <span className="required">*</span></label>
+                                    <input
+                                        type="date"
+                                        name="ngay_bao_hanh"
+                                        value={formData.ngay_bao_hanh}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="popup-form-actions">
+                                <button type="submit" className="btn-submit">{editingId ? 'Cập nhật' : 'Thêm mới'}</button>
+                                <button type="button" className="btn-cancel" onClick={() => { setShowFormPopup(false); setEditingId(null); }}>Hủy</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

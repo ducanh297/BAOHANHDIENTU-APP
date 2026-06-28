@@ -218,6 +218,15 @@
     position: relative;
 }
 
+.history-form select {
+    flex: 1 1 150px;
+    padding: 6px 10px;
+    border: 1px solid #dce7f5;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+}
+
 /* Responsive cho modal */
 @media (max-width: 640px) {
     .modal-overlay {
