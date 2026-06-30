@@ -470,7 +470,7 @@ function ThongTinContent() {
                                                     <React.Fragment key={index}>
                                                         <tr className="item-main-row">
                                                             <td className="cell-center">{escapeHtml(item.stt)}</td>
-                                                            <td className="cell-left"><strong>{escapeHtml(item.maSanPham)}</strong></td>
+                                                            <td className="cell-left">{escapeHtml(item.maSanPham)}</td>
                                                             <td className="cell-left" dangerouslySetInnerHTML={{ __html: formatDescription(item.dienGiai) }} />
                                                             <td className="cell-center">{escapeHtml(item.chieuRong)}</td>
                                                             <td className="cell-center">{escapeHtml(item.chieuCao)}</td>
