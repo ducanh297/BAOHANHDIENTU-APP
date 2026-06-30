@@ -76,6 +76,70 @@
     color: #0f172a;
 }
 
+/* Bordered table */
+.bordered-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 12.5px;
+}
+
+.bordered-table thead th {
+    position: sticky;
+    top: 0;
+    white-space: normal !important;
+    word-break: break-word;
+    z-index: 1;
+    background: linear-gradient(180deg, #1f4b7b, #0f4c81);
+    color: #fff;
+    font-weight: 800;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 12px 8px;
+    vertical-align: middle;
+}
+
+.bordered-table thead th:last-child {
+    border-right: none;
+}
+
+.bordered-table tbody td {
+    border-top: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    padding: 12px 10px;
+    vertical-align: top;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    background: #fff;
+}
+
+.bordered-table tbody tr:nth-child(even) td {
+    background: #fbfdff;
+}
+
+.bordered-table tbody tr:hover td {
+    background: #f7fbff;
+}
+
+.bordered-table tbody td:last-child {
+    border-right: none;
+}
+
+/* Cho phép xuống dòng trong bảng chi tiết đơn hàng */
+.bordered-table td.cell-left {
+    white-space: normal !important;
+    word-break: break-word;
+    min-width: 150px;
+    max-width: 300px;
+    /* có thể điều chỉnh theo ý muốn */
+}
+
+/* Đảm bảo các ô khác không bị ảnh hưởng */
+.bordered-table td {
+    white-space: normal;
+    word-break: break-word;
+}
+
 /* History panel */
 .history-panel {
     border-top: 1px solid #e1ebf8;

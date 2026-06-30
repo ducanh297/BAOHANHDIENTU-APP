@@ -50,6 +50,7 @@ export default function BaoHanhPage() {
     const [ruleRows, setRuleRows] = useState([]);
     const [historyRows, setHistoryRows] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false); // thêm dòng này
     const [error, setError] = useState(null);
     const [lastSync, setLastSync] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -224,7 +225,12 @@ export default function BaoHanhPage() {
     };
 
     const handleRefresh = async () => {
-        await fetchAllData();
+        setRefreshing(true);
+        try {
+            await fetchAllData();
+        } finally {
+            setRefreshing(false);
+        }
     };
 
     const formatSyncTime = (timestamp) => {
@@ -274,8 +280,9 @@ export default function BaoHanhPage() {
                     <h2><ShieldCheck size={28} className="text-accent" />QUẢN LÝ THÔNG TIN BẢO HÀNH</h2>
                     <div className="header-right">
                         <span>Đồng bộ lúc: {formatSyncTime(lastSync)}</span>
-                        <button onClick={handleRefresh} className="btn-refresh">
-                            <RefreshCw size={14} /> Làm mới dữ liệu
+                        <button onClick={handleRefresh} className="btn-refresh" disabled={refreshing}>
+                            <RefreshCw size={14} className={refreshing ? 'spin' : ''} />
+                            {refreshing ? 'Đang làm mới...' : 'Làm mới dữ liệu'}
                         </button>
                     </div>
                 </div>

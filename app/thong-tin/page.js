@@ -20,20 +20,7 @@ import {
 import {
     PhoneCall,
     QrCode,
-    SquareUser,
-    Smartphone,
-    MapPin,
-    FileText,
-    CalendarDays,
-    FileSpreadsheet,
-    BookOpen,
-    Wrench,
-    Clock,
-    AlertTriangle,
-    XCircle,
-    ChevronDown,
-    ChevronUp,
-    ExternalLink
+    XCircle
 } from 'lucide-react';
 import './style.css';
 

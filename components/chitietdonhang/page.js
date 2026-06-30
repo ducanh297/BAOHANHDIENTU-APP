@@ -416,6 +416,23 @@ export default function ChiTietDonHang({
                             <tr><td className="info-label">Địa chỉ</td><td className="info-value">{warrantyMain.diaChiChiTiet}</td></tr>
                             <tr><td className="info-label">Mã hợp đồng</td><td className="info-value">{warrantyMain.maHopDong}</td></tr>
                             <tr><td className="info-label">Ngày bàn giao</td><td className="info-value">{deliveryText}</td></tr>
+                            <tr>
+                                <td className="info-label">QR Code</td>
+                                <td className="info-value">
+                                    <a
+                                        href={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}&format=svg`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ display: 'inline-block' }}
+                                    >
+                                        <img
+                                            src={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}&format=svg`}
+                                            alt="QR Code"
+                                            style={{ maxWidth: '200px', height: 'auto', cursor: 'pointer', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                                        />
+                                    </a>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

@@ -10,6 +10,7 @@ import {
     BookOpen,
     PhoneCall,
     ShieldCheck,
+    BrickWallShield,
     User,
     KeyRound,
     LogOut,
@@ -63,7 +64,7 @@ export default function SlideBar() {
         }
     };
 
-    if (pathname === '/login') return null;
+    if (pathname === '/login' || pathname === '/thong-tin') return null;
 
     const toggleSlideBar = () => setIsOpen(!isOpen);
 
@@ -92,6 +93,7 @@ export default function SlideBar() {
     const supportMenus = [
         { path: '/huong-dan', label: 'Hướng dẫn', icon: <BookOpen size={18} /> },
         { path: '/lien-he', label: 'Liên hệ hỗ trợ', icon: <PhoneCall size={18} /> },
+        { path: '/quy-dinh', label: 'Quy định bảo hành', icon: <BrickWallShield size={18} /> },
     ];
 
     const accountMenus = [
