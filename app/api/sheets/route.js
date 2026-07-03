@@ -20,6 +20,8 @@ export async function GET(req) {
             detail: 'du_lieu_bao_hanh_chi_tiet!A:Z',
             rule: 'quy_dinh_bh_hdsd_hdld!A:Z',
             history: 'lich_su_bao_hanh!A:Z',
+            users: 'nguoi_dung!A:Z',
+            phanquyen: 'phan_quyen!A:Z',
         };
 
         const range = ranges[type];

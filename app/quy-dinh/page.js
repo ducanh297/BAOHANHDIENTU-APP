@@ -225,7 +225,7 @@ export default function QuyDinhPage() {
                                 <th>Hệ cửa</th>
                                 <th>Mã sản phẩm</th>
                                 <th>Thời điểm áp dụng</th>
-                                <th style={{ width: '60px' }}>Thao tác</th>
+                                <th style={{ width: '55px' }}></th>
                             </tr>
                         </thead>
                         <tbody>

@@ -28,6 +28,7 @@ export async function POST(request) {
             return Response.json({
                 success: true,
                 user: {
+                    id: user[0], // cột A
                     ten_dang_nhap: user[4],
                     ten_nguoi_dung: user[1],
                     chuc_danh: user[2],

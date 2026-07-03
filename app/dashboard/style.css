@@ -251,6 +251,10 @@
     background: #fecaca;
 }
 
+.spin {
+    animation: spin 1s linear infinite;
+}
+
 /* ========== PHÂN TRANG ========== */
 .pagination-container {
     display: flex;

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatDateDisplay, escapeHtml, normalizeDate, filterSheetData, parseDetailRow } from '@/lib/helpers';
 import ChiTietDonHang from '@/components/chitietdonhang/page';// Import bộ icon đồng bộ từ lucide-react
+import { usePermission } from '@/lib/hooks/usePermission';
 import {
     ShieldCheck,
     RefreshCw,
@@ -65,6 +66,8 @@ export default function BaoHanhPage() {
     const [filterSDT, setFilterSDT] = useState('');
     const [filterNgayBanGiao, setFilterNgayBanGiao] = useState('');
     const [userRole, setUserRole] = useState('');
+
+    const { loading: permLoading, canView, canAdd, canEdit, canDelete } = usePermission('bao-hanh');
 
     useEffect(() => {
         const chucDanh = localStorage.getItem('chucDanh') || '';
@@ -262,6 +265,18 @@ export default function BaoHanhPage() {
         setSelectedOrder(null);
     };
 
+    if (!canView && !permLoading) {
+        return (
+            <div className="page-shell" style={{ paddingTop: '50px' }}>
+                <div className="content">
+                    <div className="status-box" style={{ color: 'red' }}>
+                        Bạn không có quyền truy cập trang này.
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     if (loading && orders.length === 0) {
         return (
             <div className="page-shell" style={{ paddingTop: '50px' }}>
@@ -421,7 +436,9 @@ export default function BaoHanhPage() {
                             detailItems={selectedOrder.details}
                             ruleRows={selectedOrder.rules}
                             historyRows={selectedOrder.history}
-                            userRole={userRole}
+                            canAdd={canAdd}
+                            canEdit={canEdit}
+                            canDelete={canDelete}
                             onClose={handleCloseModal}
                         />
                     </div>

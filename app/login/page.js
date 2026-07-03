@@ -29,6 +29,7 @@ export default function LoginPage() {
 
             if (data.success) {
                 localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userId', data.user.id);
                 localStorage.setItem('username', data.user.ten_dang_nhap);
                 localStorage.setItem('fullName', data.user.ten_nguoi_dung);
                 localStorage.setItem('chucDanh', data.user.chuc_danh || '');

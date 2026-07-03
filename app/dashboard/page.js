@@ -469,7 +469,7 @@ export default function DashboardPage() {
                     <div className="chart-box">
                         <div className="chart-header">
                             <PieChartIcon size={20} className="text-blue" />
-                            <h4>Tình trạng bảo hành (sản phẩm)</h4>
+                            <h4>Tình trạng bảo hành sản phẩm</h4>
                         </div>
                         <ResponsiveContainer width="100%" height={240}>
                             <PieChart>

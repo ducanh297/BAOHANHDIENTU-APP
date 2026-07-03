@@ -57,8 +57,8 @@
 .slide-bar {
     position: fixed;
     top: 0;
-    left: -320px;
-    width: 320px;
+    left: -380px;
+    width: 380px;
     height: 100vh;
     background: linear-gradient(180deg, #0b1120 0%, #1e293b 100%);
     color: #e2e8f0;
@@ -160,6 +160,22 @@
     flex: 1;
 }
 
+.slide-nav-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-group-container {
+    list-style: none;
+}
+
+.nav-sub-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 .slide-nav-list li {
     padding: 0;
 }
@@ -171,8 +187,8 @@
 
 .nav-group-title {
     /* Giữ nguyên padding gốc để không bị lệch bố cục chung */
-    padding: 32px 28px 8px 28px;
-    font-size: 11px;
+    padding: 32px 28px 8px 10px;
+    font-size: 15px;
     text-transform: uppercase;
     color: #64748b;
     letter-spacing: 1.4px;
@@ -180,6 +196,33 @@
 
     /* Dùng dịch chuyển (transform) hoặc margin để đẩy chữ thụt lề cực kỳ an toàn */
     transform: translateX(20px);
+}
+
+/* Cấu trúc nhóm menu */
+.nav-group {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-group-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-group-last {
+    list-style: none;
+    padding-top: 0 !important;
+    margin: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Thời gian đăng nhập trong user-profile */
+.login-time {
+    font-size: 12px;
+    color: #0dac14;
+    margin-top: 4px;
 }
 
 .slide-nav-link {

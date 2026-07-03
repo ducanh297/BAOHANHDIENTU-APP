@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { filterSheetData, normalizeDate, addMonths, daysBetween } from '@/lib/helpers';
-// Import các icon chuyên nghiệp từ lucide-react
 import {
     LayoutDashboard,
     BookOpen,
@@ -12,10 +11,10 @@ import {
     ShieldCheck,
     BrickWallShield,
     User,
-    KeyRound,
     LogOut,
     X,
-    Menu as MenuIcon
+    Menu as MenuIcon,
+    KeyRound,
 } from 'lucide-react';
 import './style.css';
 
@@ -25,10 +24,15 @@ export default function SlideBar() {
     const [user, setUser] = useState({ name: '', chucDanh: '', phongBan: '', loginTime: '' });
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [expiringCount, setExpiringCount] = useState(0);
+    const [allowedMenus, setAllowedMenus] = useState([]);
+    const [loadingMenus, setLoadingMenus] = useState(true);
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
         const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
         setIsLoggedIn(loggedIn);
+        const uid = localStorage.getItem('userId');
+        setUserId(uid);
         if (loggedIn) {
             setUser({
                 name: localStorage.getItem('fullName') || '',
@@ -64,6 +68,55 @@ export default function SlideBar() {
         }
     };
 
+    // Lấy danh sách menu theo quyền
+    useEffect(() => {
+        if (!isLoggedIn) {
+            setLoadingMenus(false);
+            return;
+        }
+        const fetchPermissions = async () => {
+            try {
+                const res = await fetch('/api/sheets/phan-quyen', {
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (!res.ok) throw new Error('Failed to fetch permissions');
+                const json = await res.json();
+                const rows = json.values || [];
+                const data = filterSheetData(rows);
+                const visibleMenus = data.filter(row => row[4] && row[4].toLowerCase() === 'yes');
+                const menus = visibleMenus.map(row => {
+                    const maTrang = row[1] || '';
+                    const tenSlidebar = row[6] || '';
+                    const nhomSlidebar = row[5] || '';
+                    const adminIds = row[7] ? row[7].split(',').filter(Boolean) : [];
+                    const viewIds = row[8] ? row[8].split(',').filter(Boolean) : [];
+                    const isAdmin = userId && adminIds.includes(userId);
+                    const canView = isAdmin || (userId && viewIds.includes(userId));
+                    const path = maTrang.startsWith('/') ? maTrang : '/' + maTrang;
+                    return { maTrang: path, tenSlidebar, nhomSlidebar, canView };
+                });
+                const allowed = menus.filter(m => m.canView);
+                setAllowedMenus(allowed);
+            } catch (err) {
+                console.error('Lỗi lấy phân quyền slidebar:', err);
+            } finally {
+                setLoadingMenus(false);
+            }
+        };
+        fetchPermissions();
+    }, [isLoggedIn, userId]);
+
+    // Nhóm menu theo nhom_slidebar
+    const groupedMenus = () => {
+        const groups = {};
+        allowedMenus.forEach(item => {
+            const group = item.nhomSlidebar || 'Khác';
+            if (!groups[group]) groups[group] = [];
+            groups[group].push({ path: item.maTrang, label: item.tenSlidebar });
+        });
+        return groups;
+    };
+
     if (pathname === '/login' || pathname === '/thong-tin') return null;
 
     const toggleSlideBar = () => setIsOpen(!isOpen);
@@ -75,6 +128,7 @@ export default function SlideBar() {
         localStorage.removeItem('chucDanh');
         localStorage.removeItem('phongBan');
         localStorage.removeItem('loginTime');
+        localStorage.removeItem('userId');
         window.location.href = '/login';
     };
 
@@ -84,26 +138,43 @@ export default function SlideBar() {
         return date.toLocaleString('vi-VN', { hour12: false });
     };
 
-    // Định nghĩa Menu với Component Icon thay vì Emoji
-    const mainMenus = [
-        { path: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-        { path: '/bao-hanh', label: 'Thông tin bảo hành', icon: <ShieldCheck size={18} /> },
-    ];
+    const getIcon = (path) => {
+        const iconMap = {
+            '/dashboard': <LayoutDashboard size={18} />,
+            '/bao-hanh': <ShieldCheck size={18} />,
+            '/quy-dinh': <BrickWallShield size={18} />,
+            '/huong-dan': <BookOpen size={18} />,
+            '/lien-he': <PhoneCall size={18} />,
+            '/profile': <User size={18} />,
+            '/phan-quyen': <KeyRound size={18} />,
+        };
+        return iconMap[path] || <LayoutDashboard size={18} />;
+    };
 
-    const supportMenus = [
-        { path: '/huong-dan', label: 'Hướng dẫn', icon: <BookOpen size={18} /> },
-        { path: '/lien-he', label: 'Liên hệ hỗ trợ', icon: <PhoneCall size={18} /> },
-        { path: '/quy-dinh', label: 'Quy định bảo hành', icon: <BrickWallShield size={18} /> },
-    ];
+    const groups = groupedMenus();
 
-    const accountMenus = [
-        { path: '/profile', label: 'Hồ sơ', icon: <User size={18} /> },
-        { path: '/doi-mat-khau', label: 'Đổi mật khẩu', icon: <KeyRound size={18} /> },
-    ];
+    if (loadingMenus && isLoggedIn) {
+        return (
+            <>
+                <button className="hamburger-btn" onClick={toggleSlideBar}>
+                    <MenuIcon size={24} color="#f1f5f9" />
+                </button>
+                {isOpen && <div className="slide-overlay" onClick={toggleSlideBar}></div>}
+                <nav className={`slide-bar ${isOpen ? 'slide-bar-open' : ''}`}>
+                    <div className="slide-bar-header">
+                        <h2>MENU</h2>
+                        <button className="close-btn" onClick={toggleSlideBar}>
+                            <X size={22} />
+                        </button>
+                    </div>
+                    <div style={{ padding: '20px', color: '#94a3b8' }}>Đang tải menu...</div>
+                </nav>
+            </>
+        );
+    }
 
     return (
         <>
-            {/* Nút hamburger chuyên nghiệp hơn */}
             <button className="hamburger-btn" onClick={toggleSlideBar}>
                 <MenuIcon size={24} color="#f1f5f9" />
             </button>
@@ -111,7 +182,6 @@ export default function SlideBar() {
             {isOpen && <div className="slide-overlay" onClick={toggleSlideBar}></div>}
 
             <nav className={`slide-bar ${isOpen ? 'slide-bar-open' : ''}`}>
-                {/* Header */}
                 <div className="slide-bar-header">
                     <h2>MENU</h2>
                     <button className="close-btn" onClick={toggleSlideBar}>
@@ -119,7 +189,6 @@ export default function SlideBar() {
                     </button>
                 </div>
 
-                {/* Thông tin người dùng */}
                 {isLoggedIn && (
                     <div className="user-profile">
                         <div className="avatar-circle">
@@ -129,79 +198,51 @@ export default function SlideBar() {
                             <div className="user-name">{user.name}</div>
                             <div className="user-role">Chức danh: {user.chucDanh}</div>
                             <div className="user-role">Phòng ban: {user.phongBan}</div>
+                            <div className="user-role login-time">Đã đăng nhập lúc: {formatTime(user.loginTime)}</div>
                         </div>
                     </div>
                 )}
 
                 <ul className="slide-nav-list">
-                    {/* Điều hướng */}
-                    <li className="nav-group-title">ĐIỀU HƯỚNG</li>
-                    {mainMenus.map((item) => (
-                        <li key={item.path}>
-                            <Link
-                                href={item.path}
-                                className={`slide-nav-link ${pathname === item.path ? 'active' : ''}`}
-                                onClick={() => setIsOpen(false)}
-                            >
-                                <span className="nav-icon">{item.icon}</span> {item.label}
-                                {item.path === '/bao-hanh' && expiringCount > 0 && (
-                                    <span className="badge">{expiringCount}</span>
-                                )}
-                            </Link>
+                    {Object.keys(groups).map((groupName) => (
+                        <li key={groupName} className="nav-group">
+                            <div className="nav-group-title">{groupName.toUpperCase()}</div>
+                            <ul className="nav-group-items">
+                                {groups[groupName].map((item) => {
+                                    const isActive = pathname === item.path;
+                                    return (
+                                        <li key={item.path}>
+                                            <Link
+                                                href={item.path}
+                                                className={`slide-nav-link ${isActive ? 'active' : ''}`}
+                                                onClick={() => setIsOpen(false)}
+                                            >
+                                                <span className="nav-icon">{getIcon(item.path)}</span> {item.label}
+                                                {item.path === '/bao-hanh' && expiringCount > 0 && (
+                                                    <span className="badge">{expiringCount}</span>
+                                                )}
+                                            </Link>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
                         </li>
                     ))}
 
-                    {/* Hỗ trợ */}
-                    <li className="nav-group-title">HỖ TRỢ</li>
-                    {supportMenus.map((item) => (
-                        <li key={item.path}>
-                            <Link
-                                href={item.path}
-                                className={`slide-nav-link ${pathname === item.path ? 'active' : ''}`}
-                                onClick={() => setIsOpen(false)}
-                            >
-                                <span className="nav-icon">{item.icon}</span> {item.label}
-                            </Link>
-                        </li>
-                    ))}
-
-                    {/* Tài khoản */}
-                    <li className="nav-group-title">TÀI KHOẢN</li>
-                    {accountMenus.map((item) => (
-                        <li key={item.path}>
-                            <Link
-                                href={item.path}
-                                className={`slide-nav-link ${pathname === item.path ? 'active' : ''}`}
-                                onClick={() => setIsOpen(false)}
-                            >
-                                <span className="nav-icon">{item.icon}</span> {item.label}
-                            </Link>
-                        </li>
-                    ))}
-
-                    {/* Trạng thái đăng nhập */}
                     {isLoggedIn && (
-                        <>
-                            <li className="nav-group-title">TRẠNG THÁI</li>
-                            <li>
-                                <div className="status-item">
-                                    <div className="status-header">
-                                        <span className="status-dot online"></span>
-                                        <span className="status-label">Đã đăng nhập</span>
-                                    </div>
-                                    <span className="status-time">Lúc: {formatTime(user.loginTime)}</span>
-                                </div>
-                            </li>
-                            <li>
-                                <button onClick={handleLogout} className="logout-btn">
-                                    <span className="nav-icon"><LogOut size={18} /></span> Đăng xuất
-                                </button>
-                            </li>
-                        </>
+                        <li className="nav-group-last" >
+                            <div className="nav-group-title"></div>
+                            <ul className="nav-group-items">
+                                <li>
+                                    <button onClick={handleLogout} className="logout-btn">
+                                        <span className="nav-icon"><LogOut size={18} /></span> Đăng xuất
+                                    </button>
+                                </li>
+                            </ul>
+                        </li>
                     )}
                 </ul>
 
-                {/* Footer */}
                 <div className="slide-bar-footer">
                     <div className="app-version">Phiên bản 1.0.0</div>
                     <div className="app-copyright">© 2026 Quang Minh Pro</div>

@@ -31,10 +31,11 @@ export default function ChiTietDonHang({
     detailItems,
     ruleRows,
     historyRows: initialHistoryRows,
-    userRole = '',
+    canAdd = false,
+    canEdit = false,
+    canDelete = false,
     onClose,
 }) {
-    const isAdmin = userRole === 'cskh';
     const [loading, setLoading] = useState(!mainData || !detailItems);
     const [error, setError] = useState(null);
     const [warrantyMain, setWarrantyMain] = useState(mainData || null);
@@ -420,13 +421,13 @@ export default function ChiTietDonHang({
                                 <td className="info-label">QR Code</td>
                                 <td className="info-value">
                                     <a
-                                        href={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}&format=svg`}
+                                        href={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}&caption=QUANG%20MINH&captionFontFamily=Roboto&captionFontSize=150&size=1000&margin=1`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{ display: 'inline-block' }}
                                     >
                                         <img
-                                            src={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}&format=svg`}
+                                            src={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}`}
                                             alt="QR Code"
                                             style={{ maxWidth: '200px', height: 'auto', cursor: 'pointer', border: '1px solid #e2e8f0', borderRadius: '8px' }}
                                         />
@@ -519,7 +520,7 @@ export default function ChiTietDonHang({
                                                         <div className="history-panel">
                                                             <div className="history-panel-head">
                                                                 <span>Lịch sử bảo hành</span>
-                                                                {isAdmin && (
+                                                                {canAdd && (
                                                                     <button className="history-add-btn" onClick={() => handleAddNew(item.id)}>
                                                                         + Thêm mới
                                                                     </button>
@@ -554,11 +555,11 @@ export default function ChiTietDonHang({
                                                                                         <td>{escapeHtml(h.ketQua)}</td>
                                                                                         <td>{escapeHtml(h.trangThai)}</td>
                                                                                         <td>
-                                                                                            {isAdmin && (
-                                                                                                <>
-                                                                                                    <button className="history-edit-btn" onClick={() => handleEdit(h)}>Sửa</button>
-                                                                                                    <button className="history-delete-btn" onClick={() => handleDelete(h.id)}>Xóa</button>
-                                                                                                </>
+                                                                                            {canEdit && (
+                                                                                                <button className="history-edit-btn" onClick={() => handleEdit(h)}>Sửa</button>
+                                                                                            )}
+                                                                                            {canDelete && (
+                                                                                                <button className="history-delete-btn" onClick={() => handleDelete(h.id)}>Xóa</button>
                                                                                             )}
                                                                                         </td>
                                                                                     </tr>
@@ -609,7 +610,6 @@ export default function ChiTietDonHang({
                                         name="nguoi_thuc_hien"
                                         value={formData.nguoi_thuc_hien}
                                         onChange={handleChange}
-                                        required
                                         placeholder="Nhập tên người thực hiện"
                                     />
                                 </div>
@@ -633,9 +633,9 @@ export default function ChiTietDonHang({
                                         onChange={handleChange}
                                         required
                                     >
-                                        <option value="Đã tiếp nhận thông tin">✅ Đã tiếp nhận thông tin</option>
-                                        <option value="Chưa thực hiện">⏳ Chưa thực hiện</option>
-                                        <option value="Đã thực hiện">✔️ Đã thực hiện</option>
+                                        <option value="Đã tiếp nhận thông tin">Đã tiếp nhận thông tin</option>
+                                        <option value="Chưa thực hiện">Chưa thực hiện</option>
+                                        <option value="Đã thực hiện">Đã thực hiện</option>
                                     </select>
                                 </div>
                             </div>
@@ -647,6 +647,7 @@ export default function ChiTietDonHang({
                                         name="ngay_tiep_nhan"
                                         value={formData.ngay_tiep_nhan}
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                                 <div className="popup-form-group">
@@ -656,7 +657,6 @@ export default function ChiTietDonHang({
                                         name="ngay_bao_hanh"
                                         value={formData.ngay_bao_hanh}
                                         onChange={handleChange}
-                                        required
                                     />
                                 </div>
                             </div>
