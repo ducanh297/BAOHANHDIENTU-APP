@@ -1,18 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, ClipboardList } from 'lucide-react';
+import { formatDateDisplay } from '@/lib/helpers';
 import './style.css';
 
-export default function QuyDinhDetailPopup({ data, userRole = '', onClose, onEditClick, onDelete }) {
+export default function QuyDinhDetailPopup({ data, canAdd = false, canEdit = false, canDelete = false, onClose, onEditClick, onDelete }) {
     if (!data) return null;
-
-    const isAdmin = ['admin', 'administrator'].includes(userRole.toLowerCase());
-
-    const formatDate = (val) => {
-        if (!val) return '';
-        return val.split('T')[0];
-    };
 
     const criteriaPairs = [1, 2, 3, 4, 5].map(i => ({
         tieuChi: data[`tieu_chi_${i}`],
@@ -23,46 +17,84 @@ export default function QuyDinhDetailPopup({ data, userRole = '', onClose, onEdi
         <div className="popup-overlay" onClick={onClose}>
             <div className="popup-container" onClick={e => e.stopPropagation()}>
                 <div className="popup-header">
-                    <h4>📋 Chi tiết quy định</h4>
+                    <h4>Chi tiết quy định</h4>
                     <button className="popup-close" onClick={onClose}>✕</button>
                 </div>
+
                 <div className="popup-body">
-                    <div className="detail-grid">
-                        <div className="detail-item"><label>Mã sản phẩm</label><span>{data.ma_san_pham}</span></div>
-                        <div className="detail-item"><label>Nhóm sản phẩm</label><span>{data.nhom_san_pham}</span></div>
-                        <div className="detail-item"><label>Màu cửa</label><span>{data.mau_cua}</span></div>
-                        <div className="detail-item"><label>Hệ cửa</label><span>{data.he_cua}</span></div>
-                        <div className="detail-item"><label>HDSD URL</label><span>{data.hdsd_url || '—'}</span></div>
-                        <div className="detail-item"><label>HDLĐ URL</label><span>{data.hdld_url || '—'}</span></div>
-                        <div className="detail-item"><label>Thời điểm áp dụng</label><span>{formatDate(data.thoi_diem_ap_dung)}</span></div>
+                    {/* Thông tin chung */}
+                    <div className="detail-section">
+                        <div className="section-title">Thông tin chung</div>
+                        <div className="detail-list">
+                            <div className="detail-row">
+                                <span className="detail-label">Mã sản phẩm</span>
+                                <span className="detail-value highlight">{data.ma_san_pham}</span>
+                            </div>
+                            <div className="detail-row">
+                                <span className="detail-label">Nhóm sản phẩm</span>
+                                <span className="detail-value">{data.nhom_san_pham || '—'}</span>
+                            </div>
+                            <div className="detail-row">
+                                <span className="detail-label">Màu cửa</span>
+                                <span className="detail-value">{data.mau_cua || '—'}</span>
+                            </div>
+                            <div className="detail-row">
+                                <span className="detail-label">Hệ cửa</span>
+                                <span className="detail-value">{data.he_cua || '—'}</span>
+                            </div>
+                            <div className="detail-row">
+                                <span className="detail-label">HDSD URL</span>
+                                <span className="detail-value">
+                                    {data.hdsd_url ? (
+                                        <a href={data.hdsd_url} target="_blank" rel="noopener noreferrer" className="link">Xem</a>
+                                    ) : '—'}
+                                </span>
+                            </div>
+                            <div className="detail-row">
+                                <span className="detail-label">HDLĐ URL</span>
+                                <span className="detail-value">
+                                    {data.hdld_url ? (
+                                        <a href={data.hdld_url} target="_blank" rel="noopener noreferrer" className="link">Xem</a>
+                                    ) : '—'}
+                                </span>
+                            </div>
+                            <div className="detail-row">
+                                <span className="detail-label">Thời điểm áp dụng</span>
+                                <span className="detail-value">{formatDateDisplay(data.thoi_diem_ap_dung)}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="criteria-section">
-                        <h5>Tiêu chí bảo hành</h5>
-                        <table className="criteria-table">
-                            <thead><tr><th>Tiêu chí</th><th>Thời gian (tháng)</th></tr></thead>
-                            <tbody>
-                                {criteriaPairs.length === 0 ? (
-                                    <tr><td colSpan="2" className="cell-center">Không có tiêu chí</td></tr>
-                                ) : (
-                                    criteriaPairs.map((p, idx) => (
-                                        <tr key={idx}>
-                                            <td>{p.tieuChi || '—'}</td>
-                                            <td>{p.time || '—'}</td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+
+                    {/* Tiêu chí bảo hành */}
+                    <div className="detail-section">
+                        <div className="section-title">Tiêu chí bảo hành</div>
+                        {criteriaPairs.length === 0 ? (
+                            <div className="empty-state">Không có tiêu chí bảo hành</div>
+                        ) : (
+                            <ul className="criteria-list">
+                                {criteriaPairs.map((p, idx) => (
+                                    <div key={idx} className="criteria-row">
+                                        <span className="criteria-name">{p.tieuChi || '—'}</span>
+                                        <span className="criteria-time">{p.time ? `${p.time} tháng` : '—'}</span>
+                                    </div>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 </div>
-                {isAdmin && (
+
+                {(canEdit || canDelete) && (
                     <div className="popup-footer">
-                        <button className="btn-edit" onClick={() => onEditClick(data)}>
-                            <Edit size={16} /> Sửa
-                        </button>
-                        <button className="btn-delete" onClick={() => onDelete(data.id)}>
-                            <Trash2 size={16} /> Xóa
-                        </button>
+                        {canEdit && (
+                            <button className="btn-edit" onClick={() => { onClose(); onEditClick(data); }}>
+                                <Edit size={16} /> Sửa
+                            </button>
+                        )}
+                        {canDelete && (
+                            <button className="btn-delete" onClick={() => { onClose(); onDelete(data.id); }}>
+                                <Trash2 size={16} /> Xóa
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

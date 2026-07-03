@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Edit, Trash2, ClipboardList, Edit2 } from 'lucide-react';
 import './style.css';
 
 export default function QuyDinhFormPopup({ initialData, existingData = [], onClose, onSubmit }) {
@@ -88,7 +89,7 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
         <div className="popup-overlay" onClick={onClose}>
             <div className="popup-container" onClick={e => e.stopPropagation()}>
                 <div className="popup-header">
-                    <h4>{initialData ? '✏️ Sửa quy định' : '➕ Thêm quy định'}</h4>
+                    <h4>{initialData ? 'Sửa quy định' : 'Thêm quy định'}</h4>
                     <button className="popup-close" onClick={onClose}>✕</button>
                 </div>
                 <form onSubmit={handleSubmit} className="popup-form" autoComplete="off">

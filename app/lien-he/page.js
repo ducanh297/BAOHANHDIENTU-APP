@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, PhoneCall, CheckCircle, AlertCircle } from 'lucide-react';
 import './style.css';
 
 export default function LienHePage() {
@@ -58,13 +58,13 @@ export default function LienHePage() {
         <div className="page-shell" style={{ paddingTop: '50px' }}>
             <div className="content">
                 <div className="page-header">
-                    <h1>📞 Liên hệ hỗ trợ</h1>
+                    <h1><PhoneCall size={28} className="text-accent" /> LIÊN HỆ HỖ TRỢ</h1>
                 </div>
 
                 <div className="contact-grid">
                     {/* Cột trái: Thông tin liên hệ */}
                     <div className="contact-info">
-                        <h2>Thông tin liên hệ</h2>
+                        <h2>Thông tin</h2>
 
                         <div className="contact-item">
                             <div className="contact-icon phone">
@@ -109,7 +109,7 @@ export default function LienHePage() {
 
                     {/* Cột phải: Form liên hệ */}
                     <div className="map-wrapper">
-                        <h2>Vị trí của chúng tôi</h2>
+                        <h2>Vị trí</h2>
                         <div className="map-container">
                             <iframe
                                 src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1107.305121236827!2d105.72601077331365!3d21.01204477068852!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1svi!2s!4v1783066640235!5m2!1svi!2s"

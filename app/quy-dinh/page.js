@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { filterSheetData } from '@/lib/helpers';
-import { BrickWallShield, RefreshCw, Plus, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { ShieldCheck, RefreshCw, Plus, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import QuyDinhFormPopup from '@/components/form_quydinhbaohanh/page';
 import QuyDinhDetailPopup from '@/components/detail_quydinhbaohanh/page';
+import { usePermission } from '@/lib/hooks/usePermission';
 import './style.css';
 
 export default function QuyDinhPage() {
@@ -14,26 +15,29 @@ export default function QuyDinhPage() {
     const [refreshing, setRefreshing] = useState(false);
     const [data, setData] = useState([]);
     const [lastSync, setLastSync] = useState(null);
-    const [userRole, setUserRole] = useState('');
-    const isAdmin = ['cskh', 'admin', 'administrator'].includes(userRole.toLowerCase());
 
+    // Kiểm tra quyền
+    const { loading: permLoading, canView, canAdd, canEdit, canDelete } = usePermission('quy-dinh');
+
+    // Popup states
     const [showDetailPopup, setShowDetailPopup] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showFormPopup, setShowFormPopup] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [itemBeforeEdit, setItemBeforeEdit] = useState(null);
 
+    // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
 
+    // Điều hướng nếu chưa login
     useEffect(() => {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (!isLoggedIn) router.push('/login');
-        const chucDanh = localStorage.getItem('chucDanh') || '';
-        setUserRole(chucDanh.toLowerCase());
     }, [router]);
 
-    const fetchData = async () => {
+    // Hàm fetch dữ liệu - không phụ thuộc vào state nào
+    const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             const res = await fetch('/api/sheets/rule');
@@ -54,7 +58,7 @@ export default function QuyDinhPage() {
             });
             setData(mapped);
             setLastSync(Date.now());
-            return mapped;
+            return mapped; // trả về dữ liệu mới
         } catch (err) {
             console.error(err);
             alert('Lỗi tải dữ liệu: ' + err.message);
@@ -62,8 +66,9 @@ export default function QuyDinhPage() {
             setLoading(false);
             setRefreshing(false);
         }
-    };
+    }, []);
 
+    // Fetch lần đầu
     useEffect(() => {
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,6 +101,10 @@ export default function QuyDinhPage() {
     };
 
     const handleDelete = async (id) => {
+        if (!canDelete) {
+            alert('Bạn không có quyền xóa');
+            return;
+        }
         if (!confirm('Bạn có chắc muốn xóa quy định này?')) return;
         try {
             const res = await fetch(`/api/sheets/rule?id=${id}`, { method: 'DELETE' });
@@ -113,18 +122,17 @@ export default function QuyDinhPage() {
 
     const handleSubmitPopup = async (formData) => {
         const payload = { ...formData };
-        const isEditing = !!editingItem;
-        const editingId = editingItem?.id;
-
         try {
-            if (isEditing) {
+            if (editingItem) {
+                if (!canEdit) throw new Error('Bạn không có quyền sửa');
                 const res = await fetch('/api/sheets/rule', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: editingId, ...payload }),
+                    body: JSON.stringify({ id: editingItem.id, ...payload }),
                 });
                 if (!res.ok) throw new Error('Cập nhật thất bại');
             } else {
+                if (!canAdd) throw new Error('Bạn không có quyền thêm');
                 const res = await fetch('/api/sheets/rule', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -133,31 +141,24 @@ export default function QuyDinhPage() {
                 if (!res.ok) throw new Error('Thêm mới thất bại');
             }
 
-            // Đóng form
+            // Fetch lại dữ liệu và nhận kết quả
+            const newData = await fetchData();
+
+            // Nếu là sửa, mở lại detail với dữ liệu mới
+            if (editingItem && newData) {
+                const updated = newData.find(item => item.id === editingItem.id);
+                if (updated) {
+                    setSelectedItem(updated);
+                    setShowDetailPopup(true);
+                } else {
+                    setShowDetailPopup(false);
+                    setSelectedItem(null);
+                }
+            }
+
             setShowFormPopup(false);
             setEditingItem(null);
             setItemBeforeEdit(null);
-
-            // Đóng detail (nếu đang mở)
-            if (showDetailPopup) {
-                setShowDetailPopup(false);
-                setSelectedItem(null);
-            }
-
-            // Fetch lại dữ liệu mới
-            const newData = await fetchData();
-
-            // Nếu là sửa, mở lại detail với dữ liệu mới sau 0ms (đảm bảo re-render)
-            if (isEditing && newData) {
-                const updated = newData.find(item => item.id === editingId);
-                if (updated) {
-                    // Dùng setTimeout để React kịp xử lý các state update trước
-                    setTimeout(() => {
-                        setSelectedItem(updated);
-                        setShowDetailPopup(true);
-                    }, 0);
-                }
-            }
         } catch (err) {
             alert('Lỗi: ' + err.message);
         }
@@ -166,7 +167,6 @@ export default function QuyDinhPage() {
     const handleFormCancel = () => {
         setShowFormPopup(false);
         if (itemBeforeEdit) {
-            // Mở lại detail với item cũ
             setSelectedItem(itemBeforeEdit);
             setShowDetailPopup(true);
             setItemBeforeEdit(null);
@@ -174,7 +174,7 @@ export default function QuyDinhPage() {
         setEditingItem(null);
     };
 
-    // Phân trang
+    // Pagination
     const totalPages = Math.ceil(data.length / rowsPerPage);
     const start = (currentPage - 1) * rowsPerPage;
     const paginatedData = data.slice(start, start + rowsPerPage);
@@ -184,15 +184,28 @@ export default function QuyDinhPage() {
         setCurrentPage(page);
     };
 
-    const formatDate = (val) => {
+    const formatDateDisplay = (val) => {
         if (!val) return '';
         return val.split('T')[0];
     };
 
-    if (loading && !refreshing) {
+    // Kiểm tra quyền
+    if (loading || permLoading) {
         return (
             <div className="page-shell" style={{ paddingTop: '50px' }}>
                 <div className="content"><div className="status-box">Đang tải dữ liệu...</div></div>
+            </div>
+        );
+    }
+
+    if (!canView) {
+        return (
+            <div className="page-shell" style={{ paddingTop: '50px' }}>
+                <div className="content">
+                    <div className="status-box" style={{ color: 'red' }}>
+                        Bạn không có quyền truy cập trang này.
+                    </div>
+                </div>
             </div>
         );
     }
@@ -201,14 +214,14 @@ export default function QuyDinhPage() {
         <div className="page-shell" style={{ paddingTop: '50px' }}>
             <div className="content">
                 <div className="page-header">
-                    <h2><BrickWallShield size={28} className="text-accent" /> QUY ĐỊNH BẢO HÀNH & BẢO TRÌ</h2>
+                    <h2><ShieldCheck size={28} className="text-accent" /> QUY ĐỊNH BẢO HÀNH & BẢO TRÌ</h2>
                     <div className="header-right">
                         <span>Đồng bộ lúc: {lastSync ? new Date(lastSync).toLocaleString('vi-VN', { hour12: false }) : 'Chưa đồng bộ'}</span>
                         <button onClick={handleRefresh} className="btn-refresh" disabled={refreshing}>
                             <RefreshCw size={14} className={refreshing ? 'spin' : ''} />
                             {refreshing ? 'Đang làm mới...' : 'Làm mới dữ liệu'}
                         </button>
-                        {isAdmin && (
+                        {canAdd && (
                             <button onClick={handleAdd} className="btn-add">
                                 <Plus size={16} /> Thêm mới
                             </button>
@@ -220,25 +233,23 @@ export default function QuyDinhPage() {
                     <table className="bordered-table">
                         <thead>
                             <tr>
-                                <th>Nhóm sản phẩm</th>
-                                <th>Mẫu cửa</th>
-                                <th>Hệ cửa</th>
-                                <th>Mã sản phẩm</th>
-                                <th>Thời điểm áp dụng</th>
-                                <th style={{ width: '55px' }}></th>
+                                <th style={{ width: '20%' }}>Nhóm sản phẩm</th>
+                                <th style={{ width: '20%' }}>Mẫu sản phẩm</th>
+                                <th style={{ width: '20%' }}>Hệ sản phẩm</th>
+                                <th style={{ width: '30%' }}>Mã sản phẩm</th>
+                                <th style={{ width: '10%' }} className="cell-center"></th>
                             </tr>
                         </thead>
                         <tbody>
                             {paginatedData.length === 0 ? (
-                                <tr><td colSpan="6" className="cell-center">Không có dữ liệu</td></tr>
+                                <tr><td colSpan="5" className="cell-center">Không có dữ liệu</td></tr>
                             ) : (
                                 paginatedData.map((row) => (
                                     <tr key={row.id}>
+                                        <td>{row.ma_san_pham}</td>
                                         <td>{row.nhom_san_pham}</td>
                                         <td>{row.mau_cua}</td>
                                         <td>{row.he_cua}</td>
-                                        <td>{row.ma_san_pham}</td>
-                                        <td>{formatDate(row.thoi_diem_ap_dung)}</td>
                                         <td className="cell-center">
                                             <button className="view-btn" onClick={() => handleView(row)} title="Xem chi tiết">
                                                 <Eye size={16} />
@@ -271,9 +282,10 @@ export default function QuyDinhPage() {
 
             {showDetailPopup && selectedItem && (
                 <QuyDinhDetailPopup
-                    key={selectedItem.id}
                     data={selectedItem}
-                    userRole={userRole}
+                    canAdd={canAdd}
+                    canEdit={canEdit}
+                    canDelete={canDelete}
                     onClose={() => { setShowDetailPopup(false); setSelectedItem(null); }}
                     onEditClick={handleEditClick}
                     onDelete={handleDelete}
