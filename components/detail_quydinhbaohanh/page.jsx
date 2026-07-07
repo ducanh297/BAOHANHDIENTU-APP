@@ -27,19 +27,19 @@ export default function QuyDinhDetailPopup({ data, canAdd = false, canEdit = fal
                         <div className="section-title">Thông tin chung</div>
                         <div className="detail-list">
                             <div className="detail-row">
-                                <span className="detail-label">Mã sản phẩm</span>
+                                <span className="detail-label">Mã</span>
                                 <span className="detail-value highlight">{data.ma_san_pham}</span>
                             </div>
                             <div className="detail-row">
-                                <span className="detail-label">Nhóm sản phẩm</span>
+                                <span className="detail-label">Nhóm</span>
                                 <span className="detail-value">{data.nhom_san_pham || '—'}</span>
                             </div>
                             <div className="detail-row">
-                                <span className="detail-label">Màu cửa</span>
+                                <span className="detail-label">Mẫu</span>
                                 <span className="detail-value">{data.mau_cua || '—'}</span>
                             </div>
                             <div className="detail-row">
-                                <span className="detail-label">Hệ cửa</span>
+                                <span className="detail-label">Hệ</span>
                                 <span className="detail-value">{data.he_cua || '—'}</span>
                             </div>
                             <div className="detail-row">

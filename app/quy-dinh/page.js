@@ -233,10 +233,10 @@ export default function QuyDinhPage() {
                     <table className="bordered-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '20%' }}>Nhóm sản phẩm</th>
-                                <th style={{ width: '20%' }}>Mẫu sản phẩm</th>
-                                <th style={{ width: '20%' }}>Hệ sản phẩm</th>
-                                <th style={{ width: '30%' }}>Mã sản phẩm</th>
+                                <th style={{ width: '25%' }}>Nhóm</th>
+                                <th style={{ width: '25%' }}>Mẫu</th>
+                                <th style={{ width: '25%' }}>Hệ</th>
+                                <th style={{ width: '20%' }}>Mã</th>
                                 <th style={{ width: '10%' }} className="cell-center"></th>
                             </tr>
                         </thead>
@@ -246,10 +246,10 @@ export default function QuyDinhPage() {
                             ) : (
                                 paginatedData.map((row) => (
                                     <tr key={row.id}>
-                                        <td>{row.ma_san_pham}</td>
                                         <td>{row.nhom_san_pham}</td>
                                         <td>{row.mau_cua}</td>
                                         <td>{row.he_cua}</td>
+                                        <td>{row.ma_san_pham}</td>
                                         <td className="cell-center">
                                             <button className="view-btn" onClick={() => handleView(row)} title="Xem chi tiết">
                                                 <Eye size={16} />

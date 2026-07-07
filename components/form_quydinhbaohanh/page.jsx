@@ -94,13 +94,13 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
                 </div>
                 <form onSubmit={handleSubmit} className="popup-form" autoComplete="off">
                     <div className="form-group">
-                        <label>Nhóm sản phẩm</label>
+                        <label>Nhóm</label>
                         <input
                             list="nhom-list"
                             name="nhom_san_pham"
                             value={formData.nhom_san_pham}
                             onChange={handleChange}
-                            placeholder="Chọn hoặc nhập nhóm sản phẩm"
+                            placeholder="Chọn hoặc nhập nhóm"
                             autoComplete="off"
                         />
                         <datalist id="nhom-list">
@@ -109,13 +109,13 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
                     </div>
 
                     <div className="form-group">
-                        <label>Màu cửa</label>
+                        <label>mẫu cửa</label>
                         <input
                             list="mau-list"
                             name="mau_cua"
                             value={formData.mau_cua}
                             onChange={handleChange}
-                            placeholder="Chọn hoặc nhập màu cửa"
+                            placeholder="Chọn hoặc nhập mẫu"
                             autoComplete="off"
                         />
                         <datalist id="mau-list">
@@ -124,13 +124,13 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
                     </div>
 
                     <div className="form-group">
-                        <label>Hệ cửa</label>
+                        <label>Hệ</label>
                         <input
                             list="he-list"
                             name="he_cua"
                             value={formData.he_cua}
                             onChange={handleChange}
-                            placeholder="Chọn hoặc nhập hệ cửa"
+                            placeholder="Chọn hoặc nhập hệ"
                             autoComplete="off"
                         />
                         <datalist id="he-list">
@@ -139,14 +139,14 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
                     </div>
 
                     <div className="form-group">
-                        <label>Mã sản phẩm <span className="required">*</span></label>
+                        <label>Mã<span className="required">*</span></label>
                         <input
                             list="masp-list"
                             name="ma_san_pham"
                             value={formData.ma_san_pham}
                             onChange={handleChange}
                             required
-                            placeholder="Chọn hoặc nhập mã sản phẩm"
+                            placeholder="Chọn hoặc nhập mã"
                             autoComplete="off"
                         />
                         <datalist id="masp-list">

@@ -2,9 +2,9 @@ import { getSheetData, appendSheetRow, updateSheetRow, deleteSheetRow } from '@/
 import { randomBytes } from 'crypto';
 
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
-const RANGE = 'quy_dinh_bh_hdsd_hdld!A2:R'; // A đến R (18 cột)
+const RANGE = 'quy_dinh_bh_hdsd_hdld!A:R'; // có header
 
-// GET: lấy tất cả dữ liệu
+// GET: lấy tất cả dữ liệu (cả header)
 export async function GET() {
     try {
         const rows = await getSheetData(SPREADSHEET_ID, RANGE);
@@ -19,7 +19,6 @@ export async function GET() {
 export async function POST(request) {
     try {
         const body = await request.json();
-        // body chứa tất cả các trường (không bao gồm id)
         const newId = randomBytes(10).toString('hex');
 
         const rowData = [
@@ -51,18 +50,25 @@ export async function POST(request) {
     }
 }
 
-// PUT: cập nhật
+// PUT: cập nhật bằng id
 export async function PUT(request) {
     try {
         const body = await request.json();
         const { id, ...updateData } = body;
 
+        // 1. Lấy toàn bộ dữ liệu (có header)
         const allRows = await getSheetData(SPREADSHEET_ID, RANGE);
+
+        // 2. Tìm vị trí (index) của dòng có id cần sửa
         const rowIndex = allRows.findIndex(row => row[0] === String(id));
         if (rowIndex === -1) {
             return Response.json({ error: 'Không tìm thấy bản ghi' }, { status: 404 });
         }
 
+        // 3. Số dòng thực tế trong sheet (1-based, dòng 1 là header)
+        const sheetRowNumber = rowIndex + 1; // vì rowIndex là vị trí trong mảng, header ở index 0
+
+        // 4. Chuẩn bị dữ liệu mới cho dòng đó
         const newRow = [
             String(id),
             updateData.nhom_san_pham || '',
@@ -84,7 +90,12 @@ export async function PUT(request) {
             updateData.thoi_diem_ap_dung || '',
         ];
 
-        await updateSheetRow(SPREADSHEET_ID, RANGE, rowIndex + 1, newRow);
+        // 5. Log để kiểm tra (xóa sau khi ổn)
+        console.log(`PUT: id=${id}, rowIndex=${rowIndex}, sheetRowNumber=${sheetRowNumber}`);
+
+        // 6. Gọi update với đúng số dòng (sheetRowNumber)
+        await updateSheetRow(SPREADSHEET_ID, RANGE, sheetRowNumber, newRow);
+
         return Response.json({ success: true });
     } catch (error) {
         console.error('PUT error:', error);
@@ -92,7 +103,7 @@ export async function PUT(request) {
     }
 }
 
-// DELETE: xóa
+// DELETE: xóa bằng id
 export async function DELETE(request) {
     try {
         const { searchParams } = new URL(request.url);
@@ -107,8 +118,13 @@ export async function DELETE(request) {
             return Response.json({ error: 'Không tìm thấy bản ghi' }, { status: 404 });
         }
 
+        const sheetRowNumber = rowIndex + 1; // vì header ở dòng 1
         const sheetName = RANGE.split('!')[0];
-        await deleteSheetRow(SPREADSHEET_ID, sheetName, rowIndex + 1);
+
+        console.log(`DELETE: id=${id}, rowIndex=${rowIndex}, sheetRowNumber=${sheetRowNumber}`);
+
+        await deleteSheetRow(SPREADSHEET_ID, sheetName, sheetRowNumber);
+
         return Response.json({ success: true });
     } catch (error) {
         console.error('DELETE error:', error);
