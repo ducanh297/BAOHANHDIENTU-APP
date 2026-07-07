@@ -218,9 +218,6 @@ export default function SlideBar() {
                                                 onClick={() => setIsOpen(false)}
                                             >
                                                 <span className="nav-icon">{getIcon(item.path)}</span> {item.label}
-                                                {item.path === '/bao-hanh' && expiringCount > 0 && (
-                                                    <span className="badge">{expiringCount}</span>
-                                                )}
                                             </Link>
                                         </li>
                                     );

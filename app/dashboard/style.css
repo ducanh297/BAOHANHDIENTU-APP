@@ -373,6 +373,10 @@
     box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
 }
 
+.spin {
+    animation: spin 1s linear infinite;
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1024px) {
     .dashboard-stats {
