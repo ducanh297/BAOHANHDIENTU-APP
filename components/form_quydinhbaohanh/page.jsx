@@ -1,6 +1,21 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import {
+    escapeHtml,
+    normalizeDate,
+    formatDateDisplay,
+    getValue,
+    addMonths,
+    daysBetween,
+    formatDescription,
+    sanitizeUrl,
+    getWarrantyStatusClass,
+    filterSheetData,
+    parseDetailRow,
+    parseHistoryRow,
+    formatDateForSheet,
+} from '@/lib/helpers';
 import { Edit, Trash2, ClipboardList, Edit2 } from 'lucide-react';
 import './style.css';
 
@@ -29,6 +44,32 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
 
     useEffect(() => {
         if (initialData) {
+            // Hàm chuyển đổi từ DD/MM/YYYY sang DD/MM/YYYY để hiển thị (giữ nguyên)
+            const formatDisplayDate = (dateStr) => {
+                if (!dateStr) return '';
+                // Nếu đã là DD/MM/YYYY thì giữ nguyên
+                if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+                    return dateStr;
+                }
+                // Nếu là YYYY-MM-DD, chuyển về DD/MM/YYYY
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const year = parts[0];
+                    const month = parts[1];
+                    const day = parts[2];
+                    return `${day}/${month}/${year}`;
+                }
+                // Fallback: dùng normalizeDate để parse và format
+                const dateObj = normalizeDate(dateStr);
+                if (dateObj && !isNaN(dateObj)) {
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const year = dateObj.getFullYear();
+                    return `${day}/${month}/${year}`;
+                }
+                return dateStr;
+            };
+
             setFormData({
                 nhom_san_pham: initialData.nhom_san_pham || '',
                 mau_cua: initialData.mau_cua || '',
@@ -46,7 +87,7 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
                 time_5: initialData.time_5 || '',
                 hdsd_url: initialData.hdsd_url || '',
                 hdld_url: initialData.hdld_url || '',
-                thoi_diem_ap_dung: initialData.thoi_diem_ap_dung || '',
+                thoi_diem_ap_dung: formatDisplayDate(initialData.thoi_diem_ap_dung),
             });
         }
     }, [initialData]);
@@ -60,7 +101,33 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
         e.preventDefault();
         setLoading(true);
         try {
-            await onSubmit(formData);
+            // Chuyển đổi ngày từ DD/MM/YYYY sang YYYY-MM-DD trước khi submit
+            const submitData = { ...formData };
+            if (submitData.thoi_diem_ap_dung) {
+                const parts = submitData.thoi_diem_ap_dung.split('/');
+                if (parts.length === 3) {
+                    const day = parts[0].padStart(2, '0');
+                    const month = parts[1].padStart(2, '0');
+                    const year = parts[2];
+                    // Kiểm tra hợp lệ
+                    if (!isNaN(day) && !isNaN(month) && !isNaN(year) && year.length === 4) {
+                        submitData.thoi_diem_ap_dung = `${year}-${month}-${day}`;
+                    } else {
+                        // Nếu không hợp lệ, để nguyên hoặc xử lý fallback
+                        submitData.thoi_diem_ap_dung = '';
+                    }
+                } else {
+                    // Nếu đã ở định dạng khác (ví dụ YYYY-MM-DD), giữ nguyên
+                    // Hoặc có thể dùng normalizeDate để chuẩn hóa
+                    const dateObj = normalizeDate(submitData.thoi_diem_ap_dung);
+                    if (dateObj && !isNaN(dateObj)) {
+                        submitData.thoi_diem_ap_dung = dateObj.toISOString().split('T')[0];
+                    } else {
+                        submitData.thoi_diem_ap_dung = '';
+                    }
+                }
+            }
+            await onSubmit(submitData);
             onClose();
         } catch (error) {
             alert('Lỗi: ' + error.message);
@@ -166,7 +233,7 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
                                             name={key}
                                             value={formData[key]}
                                             onChange={handleChange}
-                                            placeholder={`Hạng mục bảo hành`}
+                                            placeholder="Hạng mục bảo hành"
                                             rows={3}
                                             autoComplete="off"
                                         />
@@ -179,7 +246,7 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
                                             type="number"
                                             value={formData[timeKey]}
                                             onChange={handleChange}
-                                            placeholder="Số tháng bảo hành"
+                                            placeholder="Số tháng bảo hành"
                                             autoComplete="off"
                                         />
                                     </div>
@@ -211,12 +278,13 @@ export default function QuyDinhFormPopup({ initialData, existingData = [], onClo
                     </div>
 
                     <div className="form-group">
-                        <label>Thời điểm áp dụng</label>
+                        <label>Thời điểm áp dụng <span className="hint">(DD/MM/YYYY)</span></label>
                         <input
-                            type="date"
+                            type="text"
                             name="thoi_diem_ap_dung"
                             value={formData.thoi_diem_ap_dung}
                             onChange={handleChange}
+                            placeholder="DD/MM/YYYY"
                             autoComplete="off"
                         />
                     </div>
