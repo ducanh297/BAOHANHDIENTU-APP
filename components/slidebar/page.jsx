@@ -15,6 +15,7 @@ import {
     X,
     Menu as MenuIcon,
     KeyRound,
+    Users,
 } from 'lucide-react';
 import './style.css';
 
@@ -146,6 +147,7 @@ export default function SlideBar() {
             '/huong-dan': <BookOpen size={18} />,
             '/lien-he': <PhoneCall size={18} />,
             '/profile': <User size={18} />,
+            '/nguoi-dung': <Users size={18} />,
             '/phan-quyen': <KeyRound size={18} />,
         };
         return iconMap[path] || <LayoutDashboard size={18} />;

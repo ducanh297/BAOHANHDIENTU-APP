@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { filterSheetData } from '@/lib/helpers';
-import { ShieldCheck, RefreshCw, Plus, ChevronLeft, ChevronRight, Edit, Trash2 } from 'lucide-react';
+import { ShieldCheck, RefreshCw, Plus, ChevronLeft, ChevronRight, Edit, Trash2, KeyRound } from 'lucide-react';
 import PhanQuyenFormPopup from '@/components/PhanQuyenFormPopup/page';
 import { usePermission } from '@/lib/hooks/usePermission';
 import './style.css';
@@ -187,7 +187,7 @@ export default function PhanQuyenPage() {
         <div className="page-shell" style={{ paddingTop: '50px' }}>
             <div className="content">
                 <div className="page-header">
-                    <h2><ShieldCheck size={28} className="text-accent" /> PHÂN QUYỀN HỆ THỐNG</h2>
+                    <h2><KeyRound size={28} className="text-accent" /> PHÂN QUYỀN HỆ THỐNG</h2>
                     <div className="header-right">
                         <span>Đồng bộ lúc: {lastSync ? new Date(lastSync).toLocaleString('vi-VN', { hour12: false }) : 'Chưa đồng bộ'}</span>
                         <button onClick={handleRefresh} className="btn-refresh" disabled={refreshing}>

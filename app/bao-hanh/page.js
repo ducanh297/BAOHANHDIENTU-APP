@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { formatDateDisplay, escapeHtml, normalizeDate, filterSheetData, parseDetailRow } from '@/lib/helpers';
+import { formatDateDisplay, escapeHtml, normalizeDate, filterSheetData, parseDetailRow, addMonths, daysBetween } from '@/lib/helpers';
 import ChiTietDonHang from '@/components/chitietdonhang/page';// Import bộ icon đồng bộ từ lucide-react
 import { usePermission } from '@/lib/hooks/usePermission';
 import {
@@ -15,7 +15,8 @@ import {
     Calendar,
     User,
     FileText,
-    Eye
+    Eye,
+    FunnelX
 } from 'lucide-react';
 import './style.css'; // 👈 import CSS riêng
 
@@ -36,7 +37,7 @@ export default function BaoHanhPage() {
         }
         const loginTime = parseInt(localStorage.getItem('loginTime') || '0');
         const now = Date.now();
-        const expireTime = 8 * 60 * 60 * 1000;
+        const expireTime = 4 * 60 * 60 * 1000;
         if (now - loginTime > expireTime) {
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('username');
@@ -51,7 +52,7 @@ export default function BaoHanhPage() {
     const [ruleRows, setRuleRows] = useState([]);
     const [historyRows, setHistoryRows] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false); // thêm dòng này
+    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
     const [lastSync, setLastSync] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -66,6 +67,8 @@ export default function BaoHanhPage() {
     const [filterSDT, setFilterSDT] = useState('');
     const [filterNgayBanGiao, setFilterNgayBanGiao] = useState('');
     const [userRole, setUserRole] = useState('');
+    const [filterExpiringDays, setFilterExpiringDays] = useState('');
+    const [filterByExpiring, setFilterByExpiring] = useState(false);
 
     const { loading: permLoading, canView, canAdd, canEdit, canDelete } = usePermission('bao-hanh');
 
@@ -172,6 +175,89 @@ export default function BaoHanhPage() {
         }
     }, [fetchAllData]);
 
+
+    // Xây dựng ruleDataMap từ ruleRows
+    const ruleDataMap = useMemo(() => {
+        const map = new Map();
+        if (!ruleRows || !ruleRows.length) return map;
+        // Bỏ qua header (dòng đầu tiên)
+        for (let i = 1; i < ruleRows.length; i++) {
+            const row = ruleRows[i];
+            const ma = String(row[4] || '').trim();
+            if (!ma) continue;
+            const times = [row[6], row[8], row[10], row[12], row[14]]
+                .map(v => parseInt(String(v).trim(), 10))
+                .filter(t => !isNaN(t) && t >= 0);
+            if (times.length === 0) continue;
+            const minTime = Math.min(...times); // lấy thời gian nhỏ nhất
+            const applyDateStr = String(row[17] || '').trim();
+            const applyDate = normalizeDate(applyDateStr);
+            if (!applyDate) continue;
+            if (!map.has(ma)) map.set(ma, []);
+            map.get(ma).push({ thoiDiemApDung: applyDate, minTime });
+        }
+        for (const [ma, rules] of map) {
+            rules.sort((a, b) => a.thoiDiemApDung - b.thoiDiemApDung);
+        }
+        return map;
+    }, [ruleRows]);
+
+    // Xây dựng orderMap từ orders
+    const orderMap = useMemo(() => {
+        const map = new Map();
+        orders.forEach(o => {
+            if (o.maDonHang && o.ngayBanGiao) {
+                const date = normalizeDate(o.ngayBanGiao);
+                if (date) map.set(o.maDonHang, date);
+            }
+        });
+        return map;
+    }, [orders]);
+
+    // Tính tập hợp các mã đơn hàng có sản phẩm sắp hết hạn (≤ ngưỡng)
+    const expiringOrderIds = useMemo(() => {
+        if (!filterByExpiring) return null;
+        const daysThreshold = parseInt(filterExpiringDays, 10);
+        if (isNaN(daysThreshold) || daysThreshold < 0) return null;
+
+        const today = new Date();
+        const result = new Set();
+
+        for (const row of detailRows) {
+            const item = parseDetailRow(row);
+            if (!item) continue;
+            const { maDonHang, maSanPham } = item;
+            if (!maDonHang || !maSanPham) continue;
+
+            const rules = ruleDataMap.get(maSanPham);
+            if (!rules || rules.length === 0) continue;
+
+            const delivery = orderMap.get(maDonHang);
+            if (!delivery) continue;
+
+            let selectedRule = null;
+            for (const rule of rules) {
+                if (rule.thoiDiemApDung <= delivery) {
+                    selectedRule = rule;
+                } else {
+                    break;
+                }
+            }
+            if (!selectedRule) continue;
+
+            const expiry = addMonths(delivery, selectedRule.minTime);
+            const days = daysBetween(today, expiry);
+
+            if (days >= 0 && days <= daysThreshold) {
+                result.add(maDonHang);
+            }
+        }
+        return result;
+    }, [filterByExpiring, filterExpiringDays, detailRows, ruleDataMap, orderMap]);
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filterMaHopDong, filterTenKH, filterSDT, filterNgayBanGiao]);
+
     useEffect(() => {
         loadData();
     }, [loadData]);
@@ -207,8 +293,11 @@ export default function BaoHanhPage() {
                 });
             }
         }
+        if (filterByExpiring && expiringOrderIds) {
+            result = result.filter(o => expiringOrderIds.has(o.maDonHang));
+        }
         return result;
-    }, [orders, filterMaHopDong, filterTenKH, filterSDT, filterNgayBanGiao]);
+    }, [orders, filterMaHopDong, filterTenKH, filterSDT, filterNgayBanGiao, filterByExpiring, expiringOrderIds]);
 
     const totalPages = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE));
     const paginatedItems = useMemo(() => {
@@ -216,15 +305,13 @@ export default function BaoHanhPage() {
         return filteredOrders.slice(start, start + PAGE_SIZE);
     }, [filteredOrders, currentPage]);
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [filterMaHopDong, filterTenKH, filterSDT, filterNgayBanGiao]);
-
     const handleClearFilters = () => {
         setFilterMaHopDong('');
         setFilterTenKH('');
         setFilterSDT('');
         setFilterNgayBanGiao('');
+        setFilterByExpiring('');
+        setFilterExpiringDays('');
     };
 
     const handleRefresh = async () => {
@@ -308,49 +395,81 @@ export default function BaoHanhPage() {
 
                 {/* Bộ lọc */}
                 <div className="filter-container">
-                    <div className="filter-group">
-                        <label>Mã hợp đồng</label>
-                        <input
-                            type="text"
-                            value={filterMaHopDong}
-                            onChange={e => setFilterMaHopDong(e.target.value)}
-                            placeholder="Nhập mã hợp đồng..."
-                            className="filter-input"
-                        />
-                    </div>
-                    <div className="filter-group">
-                        <label>Tên khách hàng</label>
-                        <input
-                            type="text"
-                            value={filterTenKH}
-                            onChange={e => setFilterTenKH(e.target.value)}
-                            placeholder="Nhập tên..."
-                            className="filter-input"
-                        />
-                    </div>
-                    <div className="filter-group">
-                        <label>Số điện thoại</label>
-                        <input
-                            type="text"
-                            value={filterSDT}
-                            onChange={e => setFilterSDT(e.target.value)}
-                            placeholder="Nhập số điện thoại..."
-                            className="filter-input"
-                        />
-                    </div>
-                    <div className="filter-group">
-                        <label>Ngày bàn giao</label>
-                        <input
-                            type="date"
-                            value={filterNgayBanGiao}
-                            onChange={e => setFilterNgayBanGiao(e.target.value)}
-                            className="filter-input"
-                        />
-                    </div>
-                    <div className="filter-actions">
-                        <button onClick={handleClearFilters} className="btn-clear-filters">
-                            Xoá lọc
-                        </button>
+                    <div className="filter-grid">
+                        <div className="filter-group">
+                            <label>Mã hợp đồng</label>
+                            <input
+                                type="text"
+                                value={filterMaHopDong}
+                                onChange={e => setFilterMaHopDong(e.target.value)}
+                                placeholder="Nhập mã hợp đồng..."
+                                className="filter-input"
+                            />
+                        </div>
+                        <div className="filter-group">
+                            <label>Tên khách hàng</label>
+                            <input
+                                type="text"
+                                value={filterTenKH}
+                                onChange={e => setFilterTenKH(e.target.value)}
+                                placeholder="Nhập tên..."
+                                className="filter-input"
+                            />
+                        </div>
+                        <div className="filter-group">
+                            <label>Số điện thoại</label>
+                            <input
+                                type="text"
+                                value={filterSDT}
+                                onChange={e => setFilterSDT(e.target.value)}
+                                placeholder="Nhập số điện thoại..."
+                                className="filter-input"
+                            />
+                        </div>
+                        <div className="filter-group">
+                            <label>Ngày bàn giao</label>
+                            <input
+                                type="date"
+                                value={filterNgayBanGiao}
+                                onChange={e => setFilterNgayBanGiao(e.target.value)}
+                                className="filter-input"
+                            />
+                        </div>
+
+                        {/* Bộ lọc nâng cao: Sắp hết hạn bảo hành */}
+                        <div className="filter-group filter-group-expiring">
+                            <label>Trạng thái bảo hành</label>
+                            <div className="expiring-wrapper">
+                                <label className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={filterByExpiring}
+                                        onChange={(e) => setFilterByExpiring(e.target.checked)}
+                                        className="filter-checkbox"
+                                    />
+                                </label>
+                                <span className="unit-text">Hết hạn trong</span>
+                                <input
+                                    type="number"
+                                    value={filterExpiringDays}
+                                    onChange={(e) => setFilterExpiringDays(e.target.value)}
+                                    placeholder="0"
+                                    disabled={!filterByExpiring}
+                                    className="filter-input compact-input"
+                                    min="0"
+                                />
+                                <span className="unit-text">ngày</span>
+                            </div>
+                        </div>
+                        <div className="filter-actions-row">
+                            <button
+                                onClick={handleClearFilters}
+                                className="btn-clear-filters"
+                                title="Xóa tất cả bộ lọc"
+                            >
+                                <FunnelX size={18} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 

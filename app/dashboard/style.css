@@ -377,6 +377,38 @@
     animation: spin 1s linear infinite;
 }
 
+.status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.expiring {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-badge.expired {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.badge-count {
+    background: #f1f5f9;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.text-amber {
+    color: #f59e0b;
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1024px) {
     .dashboard-stats {

@@ -1,12 +1,15 @@
-/* ===== Trang Bảo hành ===== */
+/* ==========================================================================
+   TRANG QUẢN LÝ BẢO HÀNH (BaoHanhPage)
+   ========================================================================== */
 
-/* Header */
+/* ----- 1. KHU VỰC HEADER ----- */
 .header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
+    margin-bottom: 20px;
 }
 
 .header-row h2 {
@@ -21,7 +24,7 @@
 
 .header-right {
     font-size: 14px;
-    color: var(--muted);
+    color: #64748b;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -39,14 +42,14 @@
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.15);
-    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    transition: all 0.2s ease;
     white-space: nowrap;
 }
 
 .btn-refresh:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.15);
 }
 
 .spin {
@@ -63,88 +66,148 @@
     }
 }
 
-/* Error */
+/* ----- 2. HỘP THÔNG BÁO LỖI ----- */
 .error-box {
     padding: 10px 16px;
     background: #fee2e2;
     color: #b91c1c;
     border-radius: 8px;
     margin-top: 12px;
+    font-size: 14px;
+    border: 1px solid #fca5a5;
 }
 
-/* Filter */
+/* ----- 3. BỘ LỌC DỮ LIỆU (UPGRADED) ----- */
 .filter-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
     margin-top: 16px;
-    padding: 16px;
-    background: var(--bg-2);
-    border-radius: 16px;
-    border: 1px solid var(--line);
+    padding: 20px;
+    background: #f8fafc;
+    /* Nền Slate nhẹ sang trọng */
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Lưới tự động co giãn đều tăm tắp cho các input */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    width: 100%;
 }
 
 .filter-group {
-    flex: 1 1 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .filter-group label {
     display: block;
     font-size: 13px;
     font-weight: 600;
-    margin-bottom: 4px;
-    color: #334155;
+    color: #475569;
 }
 
 .filter-input {
     width: 100%;
-    padding: 8px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--line-strong);
+    padding: 9px 14px;
+    border-radius: 8px;
+    /* Form vuông vức chuẩn Dashboard hiện đại */
+    border: 1px solid #cbd5e1;
     font-size: 14px;
-    transition: border-color 0.2s;
+    color: #1e293b;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
 }
 
 .filter-input:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-.filter-actions {
+/* Xử lý riêng nhóm "Sắp hết hạn" */
+.filter-group-expiring {
+    grid-column: span 1;
+}
+
+.expiring-wrapper {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 8px;
+    height: 100%;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #334155;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.filter-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+}
+
+.compact-input {
+    width: 70px !important;
+    text-align: center;
+    padding: 7px 8px;
+}
+
+.unit-text {
+    font-size: 14px;
+    color: #64748b;
+}
+
+/* Khu vực nút bấm hành động ở chân bộ lọc */
+.filter-actions-row {
+    display: flex;
+    justify-content: left;
+    padding-top: 12px;
 }
 
 .btn-clear-filters {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 9px 18px;
-    border-radius: 999px;
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #fca5a5;
+    background: #fef2f2;
     color: #dc2626;
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: 600;
+    font-size: 13px;
     cursor: pointer;
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.15);
-    transition: all 0.25s ease;
-    white-space: nowrap;
+    transition: all 0.2s ease;
 }
 
 .btn-clear-filters:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(239, 68, 68, 0.25);
+    background: #fee2e2;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
 }
 
-/* Table wrapper – đã có trong globals, chỉ thêm margin nếu cần */
+/* ----- 4. BẢNG DỮ LIỆU & PHÂN TRANG ----- */
 .table-wrap {
     margin-top: 16px;
+    overflow-x: auto;
 }
 
-/* Pagination */
+.btn-view {
+    font-size: 12px;
+    padding: 4px 12px;
+    cursor: pointer;
+}
+
 .pagination-container {
     display: flex;
     justify-content: space-between;
@@ -156,7 +219,7 @@
 
 .pagination-info {
     font-size: 14px;
-    color: var(--muted);
+    color: #64748b;
 }
 
 .pagination-controls {
@@ -194,10 +257,9 @@
 .pagination-page {
     font-size: 14px;
     font-weight: 600;
-    color: var(--text);
+    color: #1e293b;
 }
 
-/* Sync info */
 .sync-info {
     margin-top: 12px;
     font-size: 12px;
@@ -205,14 +267,17 @@
     text-align: right;
 }
 
-/* Modal (ghi đè hoặc bổ sung từ globals nếu cần) */
+/* ----- 5. MODAL OVERLAY & CONTAINER ----- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(15, 23, 42, 0.6);
+    /* Đổi sang tông tối Slate đậm sang hơn */
+    backdrop-filter: blur(4px);
+    /* Thêm hiệu ứng mờ nền chuẩn UI hiện đại */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -221,14 +286,14 @@
 }
 
 .modal-container {
-    background: white;
-    border-radius: 20px;
+    background: #ffffff;
+    border-radius: 16px;
     max-width: 1100px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    padding: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 24px;
     position: relative;
 }
 
@@ -238,23 +303,30 @@
     border: 1px solid #dce7f5;
     border-radius: 6px;
     font-size: 13px;
-    background: white;
+    background: #ffffff;
 }
 
-/* Responsive cho modal */
+/* ----- 6. HỖ TRỢ ĐÁP ỨNG (RESPONSIVE) ----- */
 @media (max-width: 640px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+        /* Tràn hàng đơn trên điện thoại */
+    }
+
+    .expiring-wrapper {
+        flex-wrap: wrap;
+    }
+
     .modal-overlay {
         padding: 10px;
     }
 
     .modal-container {
-        padding: 12px;
+        padding: 16px;
     }
-}
 
-/* Một số điều chỉnh cho nút Xem trong bảng (đã có .guide-link, nhưng có thể thêm size) */
-.btn-view {
-    font-size: 12px;
-    padding: 4px 12px;
-    cursor: pointer;
+    .header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }

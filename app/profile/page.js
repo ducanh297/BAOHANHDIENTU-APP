@@ -194,7 +194,7 @@ export default function ProfilePage() {
                             <span className="detail-value">{user.username}</span>
                         </div>
                         <div className="detail-item">
-                            <span className="detail-label">Mật khẩu</span>
+                            <span className="detail-label">Mật khẩu (Password)</span>
                             <div className="password-field">
                                 <span>{revealedPassword || '••••••••'}</span>
                                 <button
