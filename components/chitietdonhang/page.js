@@ -421,13 +421,13 @@ export default function ChiTietDonHang({
                                 <td className="info-label">QR Code</td>
                                 <td className="info-value">
                                     <a
-                                        href={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}&caption=QUANG%20MINH&captionFontFamily=Roboto&captionFontSize=150&size=1000&margin=1`}
+                                        href={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}&size=1000&margin=1&ecLevel=H&centerImageUrl=https://raw.githubusercontent.com/ducanh297/logo/refs/heads/main/LOGO%20QM%20PNG%20-%20DEN%20TRANG.png&centerImageSizeRatio=0.55`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{ display: 'inline-block' }}
                                     >
                                         <img
-                                            src={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}`}
+                                            src={`https://quickchart.io/qr?text=https://baohanhdientu-app.vercel.app/thong-tin?id=${warrantyMain.maDonHang}&ecLevel=H&centerImageUrl=https://raw.githubusercontent.com/ducanh297/logo/48d8f048f2f9b9d1e8b7d141bd21e490888e9f0d/LOGO%20QM%20PNG.png&centerImageSizeRatio=0.5`}
                                             alt="QR Code"
                                             style={{ maxWidth: '200px', height: 'auto', cursor: 'pointer', border: '1px solid #e2e8f0', borderRadius: '8px' }}
                                         />
